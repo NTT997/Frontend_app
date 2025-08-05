@@ -1,10 +1,26 @@
 {
-  "name": "@ui/shared-models",
+  "name": "@ui/shared-model",
   "version": "1.0.0",
   "description": "Shared TypeScript interfaces and models for both React Web and React Native apps.",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "keywords": ["typescript", "shared", "models", "interfaces", "react", "react-native"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "typescript",
+    "shared",
+    "models",
+    "interfaces",
+    "react",
+    "react-native"
+  ],
   "author": "Mr. T",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
 }

@@ -25,6 +25,9 @@
 
 
 // Add more models below
-export * from './User';
+export * from './Address';
 export * from './Country';
+export * from './Language';
 export * from './Security';
+export * from './User';
+export * from './Zone';
