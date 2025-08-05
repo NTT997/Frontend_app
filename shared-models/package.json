@@ -1,0 +1,10 @@
+{
+  "name": "@ui/shared-models",
+  "version": "1.0.0",
+  "description": "Shared TypeScript interfaces and models for both React Web and React Native apps.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "keywords": ["typescript", "shared", "models", "interfaces", "react", "react-native"],
+  "author": "Mr. T",
+  "license": "ISC"
+}
