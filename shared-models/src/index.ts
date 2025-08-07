@@ -25,9 +25,9 @@
 
 
 // Add more models below
-export * from './Address';
-export * from './Country';
-export * from './Language';
-export * from './Security';
-export * from './User';
-export * from './Zone';
+export * from './models/Address';
+export * from './models/Country';
+export * from './models/Language';
+export * from './models/Security';
+export * from './models/User';
+export * from './models/Zone';
