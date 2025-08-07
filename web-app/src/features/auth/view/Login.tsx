@@ -1,4 +1,3 @@
-import React from "react";
 import useLoginViewModel from "../viewModel/loginViewModel";
 import {
   Box,
@@ -25,8 +24,8 @@ const LoginScreen = () => {
     >
       <Container maxWidth="sm">
         <Paper elevation={4} sx={{ padding: 4, marginTop: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom align="center">
-            Đăng nhập
+          <Typography variant="h2" component="h1" gutterBottom align="center">
+            Login
           </Typography>
 
           {error && (
@@ -43,7 +42,7 @@ const LoginScreen = () => {
               sx={{ marginTop: 3 }}
             >
               <TextField
-                label="Tên đăng nhập"
+                label="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -51,7 +50,7 @@ const LoginScreen = () => {
               />
 
               <TextField
-                label="Mật khẩu"
+                label="Password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -60,7 +59,7 @@ const LoginScreen = () => {
               />
 
               <Button variant="contained" type="submit" fullWidth>
-                Đăng nhập
+                LOGIN
               </Button>
             </Box>
           </form>

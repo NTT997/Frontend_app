@@ -1,5 +1,7 @@
-const Dashboard = () => {
-  return <div>dfsdfsash</div>;
+import type React from "react";
+
+const Dashboard: React.FC = () => {
+  return <div>Dashboard</div>;
 };
 
 export default Dashboard;
