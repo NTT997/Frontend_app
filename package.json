@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "my-monorepo",
+  "workspaces": [
+    "shared-models",
+    "web-app",
+    "mobile-app"
+  ]
+}

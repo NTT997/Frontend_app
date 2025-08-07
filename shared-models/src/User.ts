@@ -1,4 +1,4 @@
-import { Permission, Group} from './Security';
+import { Permission, Group } from './Security';
 
 /**
  * BaseUser represents the common properties shared by both
@@ -45,4 +45,9 @@ export interface ReadableUser extends BaseUser {
 export interface UserPassword {
   password: string;
   changePassword: string;
+}
+
+export interface userLogin {
+  username: string;
+  password: string;
 }
