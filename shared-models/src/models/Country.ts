@@ -1,3 +1,4 @@
+
 import { ReadableZone } from '../models/Zone';
 
 /**
@@ -5,7 +6,7 @@ import { ReadableZone } from '../models/Zone';
  */
 export interface CountryEntity {
   id: number;
-  code: string;     // ISO country code
+  code: string; // ISO country code
   supported: boolean;
 }
 

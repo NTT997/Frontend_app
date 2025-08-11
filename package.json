@@ -5,5 +5,8 @@
     "shared-models",
     "web-app",
     "mobile-app"
-  ]
+  ],
+  "dependencies": {
+    "react-pro-sidebar": "^0.7.1"
+  }
 }
