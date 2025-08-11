@@ -8,7 +8,7 @@ export default function AppInfoFooter() {
         App version 1.0.0
       </Text>
       <Text style={styles.footerText}>
-        App developed by Your Company Name
+        App developed by BTM
       </Text>
     </View>
   );

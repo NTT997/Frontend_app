@@ -4,6 +4,7 @@ import { Alert, Keyboard } from 'react-native';
 import { loginAsync } from '@/redux/authSlice';
 import type { RootState, AppDispatch } from '@/redux/store';
 import { userLogin as UserLoginType } from '@ui/shared-models';
+import { AuthService } from '@/api/auth.service';
 
 export function useLoginViewModel() {
   const dispatch = useDispatch<AppDispatch>();
@@ -11,6 +12,7 @@ export function useLoginViewModel() {
   const error = useSelector((state: RootState) => state.auth.error);
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
   const userId = useSelector((state: RootState) => state.auth.userId);
+  const authService = new AuthService();
 
   const [userLogin, setUserLogin] = useState<UserLoginType>({
     username: '',
@@ -33,7 +35,8 @@ export function useLoginViewModel() {
   const handleLogin = () => {
     if (loading) return;
     Keyboard.dismiss();
-    dispatch(loginAsync(userLogin));
+    // dispatch(loginAsync(userLogin));
+    authService.login(userLogin);
   };
 
   return {

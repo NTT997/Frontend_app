@@ -23,7 +23,7 @@ export const loginAsync = createAsyncThunk<
   { username: string; password: string },
   { rejectValue: string }
 >(
-  'auth/login',
+  'user/login',
   async (credentials, { rejectWithValue }) => {
     try {
       const authService = new AuthService();

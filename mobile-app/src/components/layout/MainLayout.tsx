@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { SafeAreaView, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import Header from './header';
+import Header from './Header';
 
 interface MainLayoutProps {
     children: ReactNode;
