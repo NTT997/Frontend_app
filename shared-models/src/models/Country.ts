@@ -1,4 +1,4 @@
-import { ReadableZone } from '../Zone';
+import { ReadableZone } from '../models/Zone';
 
 /**
  * Base representation of a country, used in internal logic.

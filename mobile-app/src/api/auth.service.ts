@@ -1,8 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosResponse } from 'axios';
-import { CrudService } from '../../../api/crud.service';
-import { userLogin } from '@ui/shared-models';
-import { AuthResponse } from '../models/authResponse';
+import { CrudService } from './crud.service';
+import { AuthResponse } from '../types/authResponse';
 
 // export interface AuthResponse {
 //   token: string;
@@ -14,15 +13,15 @@ import { AuthResponse } from '../models/authResponse';
 export class AuthService {
   private crudService: CrudService;
   private tokenKey = 'auth_token';
-  private userIdKey  = 'auth_user_id';
+  private userIdKey = 'auth_user_id';
 
   constructor(crudService?: CrudService) {
     this.crudService = crudService ?? new CrudService();
   }
 
-  async login(data: userLogin): Promise<AuthResponse | null> {
+  async login(data: { username: string; password: string }): Promise<AuthResponse | null> {
     try {
-      
+
       const response: AxiosResponse<AuthResponse> = await this.crudService.post<AuthResponse>(
         '/user/login',
         data
