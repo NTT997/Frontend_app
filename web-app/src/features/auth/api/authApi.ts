@@ -1,20 +1,14 @@
+import type { userLogin } from "@ui/shared-models";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-export const login = async (username: string, password: string) => {
-  console.log(`${BASE_URL}/user/login`);
-
+export const login = async (data: userLogin) => {
   try {
     const res = await axios.post(`${BASE_URL}/user/login`, {
-      password: password,
-      username: username,
+      password: data.password,
+      username: data.username,
     });
-
-    // const res = await axios.post("http://localhost:8080/api/v1/private/login", {
-    //   password: password,
-    //   username: username,
-    // });
 
     if (res.data) {
       return res.data;

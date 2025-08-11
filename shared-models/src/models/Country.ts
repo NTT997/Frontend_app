@@ -1,11 +1,11 @@
-import { ReadableZone } from '../Zone';
+import { ReadableZone } from "../models/Zone";
 
 /**
  * Base representation of a country, used in internal logic.
  */
 export interface CountryEntity {
   id: number;
-  code: string;     // ISO country code
+  code: string; // ISO country code
   supported: boolean;
 }
 

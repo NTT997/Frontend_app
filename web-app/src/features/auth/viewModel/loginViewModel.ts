@@ -2,10 +2,7 @@ import React, { useState } from "react";
 import { login } from "../api/authApi";
 import { useNavigate } from "react-router-dom";
 
-export interface LoginRequest {
-  password: string;
-  username: string;
-}
+import type { userLogin } from "@ui/shared-models";
 
 const useLoginViewModel = () => {
   const navigate = useNavigate();
@@ -17,13 +14,13 @@ const useLoginViewModel = () => {
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    const loginRequest: LoginRequest = {
-      password: password,
+    const loginData: userLogin = {
       username: username,
+      password: password,
     };
 
     try {
-      const data = await login(loginRequest.username, loginRequest.password);
+      const data = await login(loginData);
       if (data) {
         setError("");
         localStorage.setItem("id", data.id);

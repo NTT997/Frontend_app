@@ -1,6 +1,11 @@
-import { useState, type JSX } from "react";
+import { useEffect, useState, type JSX, type ReactNode } from "react";
+import {
+  ProSidebar,
+  Menu,
+  MenuItem,
+  SubMenu as SubMenuRaw,
+} from "react-pro-sidebar";
 
-import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import "react-pro-sidebar/dist/css/styles.css";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 
@@ -11,15 +16,36 @@ import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import ReceiptIcon from "@mui/icons-material/ReceiptOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 import userImage from "../assets/react.svg";
+
+import { fetchUserById } from "../services/UserService";
+
+//config for subMenu
+type SubMenuPropsFix = {
+  title?: string;
+  icon?: ReactNode;
+  children?: ReactNode;
+  [key: string]: unknown;
+};
+
+const SubMenu = SubMenuRaw as unknown as React.FC<SubMenuPropsFix>;
+//-------------------
 
 type ItemProps = {
   title: string;
   to: string;
   icon: JSX.Element;
   selected: string;
+  hasSubMenu?: boolean;
   setSelected: React.Dispatch<React.SetStateAction<string>>;
+  subItems?: SubItem[];
+};
+
+type SubItem = {
+  title: string;
+  to: string;
 };
 
 const Item: React.FC<ItemProps> = ({
@@ -28,9 +54,29 @@ const Item: React.FC<ItemProps> = ({
   icon,
   selected,
   setSelected,
+  hasSubMenu = false,
+  subItems = [],
 }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
+  if (hasSubMenu && subItems.length > 0) {
+    return (
+      <SubMenu title={title} icon={icon}>
+        {subItems.map((sub) => (
+          <MenuItem
+            key={sub.title}
+            active={selected === sub.title}
+            style={{ color: colors.grey[100] }}
+            onClick={() => setSelected(sub.title)}
+          >
+            <Typography>{sub.title}</Typography>
+            <Link to={sub.to} />
+          </MenuItem>
+        ))}
+      </SubMenu>
+    );
+  }
 
   return (
     <MenuItem
@@ -38,7 +84,6 @@ const Item: React.FC<ItemProps> = ({
       style={{ color: colors.grey[100] }}
       onClick={() => setSelected(title)}
       icon={icon}
-      // component={<Link to={to} />}
     >
       <Typography>{title}</Typography>
       <Link to={to} />
@@ -47,6 +92,21 @@ const Item: React.FC<ItemProps> = ({
 };
 
 const Sidebar = () => {
+  //dirty code
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const id = Number(localStorage.getItem("id"));
+      if (!isNaN(id)) {
+        const data = await fetchUserById(id);
+        setUser(data);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -92,7 +152,7 @@ const Sidebar = () => {
                 ml="15px"
               >
                 <Typography variant="h3" color={colors.grey[100]}>
-                  ADMINIS
+                  Interior
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -122,10 +182,10 @@ const Sidebar = () => {
                     m: "10px 0 0 0",
                   }}
                 >
-                  Duc Huy
+                  {user?.lastName || "unknown"}
                 </Typography>
                 <Typography variant="h5" color={colors.greenAccent[500]}>
-                  SUPER ADMIN
+                  ADMIN RETAILER
                 </Typography>
               </Box>
             </Box>
@@ -147,6 +207,12 @@ const Sidebar = () => {
               icon={<ReceiptIcon />}
               selected={selected}
               setSelected={setSelected}
+              hasSubMenu
+              subItems={[
+                { title: "All Order", to: "/order" },
+                { title: "Create Order", to: "/order/create-order" },
+                { title: "Order Request", to: "/order/order-requests" },
+              ]}
             />
 
             <Item
@@ -156,6 +222,25 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
+
+            <Item
+              title="Configuration"
+              to="/configuration"
+              icon={<SettingsOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+              hasSubMenu
+              subItems={[
+                {
+                  title: "All System Configuration",
+                  to: "/configuration",
+                },
+                {
+                  title: "Create Configuration",
+                  to: "/configuration/create-configuration",
+                },
+              ]}
+            />
           </Box>
         </Menu>
       </ProSidebar>
@@ -164,3 +249,29 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
+interface Permission {
+  id: number;
+  name: string;
+}
+
+interface Group {
+  id: number;
+  name: string;
+  type: string | null;
+}
+
+interface User {
+  id: number;
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  defaultLanguage: string;
+  userName: string;
+  active: boolean;
+  lastAccess: string | null;
+  loginTime: string | null;
+  merchant: string;
+  permissions: Permission[];
+  groups: Group[];
+}

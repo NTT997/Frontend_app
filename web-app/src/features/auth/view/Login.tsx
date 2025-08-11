@@ -1,3 +1,4 @@
+// import { useNavigate } from "react-router-dom";
 import useLoginViewModel from "../viewModel/loginViewModel";
 import {
   Box,
@@ -12,6 +13,11 @@ import {
 const LoginScreen = () => {
   const { username, setUsername, password, setPassword, error, handleLogin } =
     useLoginViewModel();
+
+  // const navigate = useNavigate();
+  // const handleFakeLogin = () => {
+  //   navigate("/dashboard");
+  // };
 
   return (
     <Box

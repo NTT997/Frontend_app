@@ -159,13 +159,13 @@ export const themeSettings = (mode: Mode) => {
               light: colors.grey[100],
             },
             background: {
-              default: "#fcfcfc ",
+              default: "#fcfcfc",
             },
           }),
     },
     typography: {
       fontFamily: ["Source Sans 3", "sans-serif"].join(","),
-      fontSize: 12,
+      fontSize: 14,
       h1: {
         fontFamily: ["Source Sans 3", "sans-serif"].join(","),
         fontSize: 40,
@@ -209,7 +209,7 @@ type ColorMode = {
           - ColorMode contains toggleColorMode -> swith mode
 */
 export const useMode = (): [Theme, ColorMode] => {
-  const [mode, setMode] = useState<Mode>("dark");
+  const [mode, setMode] = useState<Mode>("light");
 
   const colorMode = useMemo<ColorMode>(
     () => ({
