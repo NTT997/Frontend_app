@@ -100,6 +100,22 @@ export const deleteSystemConfiguration = async (id: string) => {
   }
 };
 
+export const fetchListSchedulerConfiguration = async () => {
+    try {
+    const res = await axios.get(`${BASE_URL}/public/schedules/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return res.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || error.message);
+    }
+    throw new Error("unknown error");
+  }
+}
 interface Approver {
   approverEmail: string;
   order: number;
