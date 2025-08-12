@@ -108,6 +108,42 @@ export const fetchListSchedulerConfiguration = async () => {
         "Content-Type": "application/json",
       },
     });
+    console.log(res)
+    return res.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || error.message);
+    }
+    throw new Error("unknown error");
+  }
+}
+export const updateEnabledStatusOnlyAPI = async (jobname:string,isEnabled:boolean) => {
+    try {
+      const res = await axios.put(`${BASE_URL}/public/schedules/${jobname}/toggle?enabled=${isEnabled}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    console.log(res)
+    return res.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || error.message);
+    }
+    throw new Error("unknown error");
+  }
+}
+
+export const updateSchedulerAPI = async (jobname:string,cronExpression:string,isEnabled:boolean) => {
+    try {
+      const res = await axios.get(`${BASE_URL}/public/schedules/update/${jobname}?cronExpression=${cronExpression}?&enabled=${isEnabled}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    console.log(res)
     return res.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
