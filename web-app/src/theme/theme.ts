@@ -62,6 +62,13 @@ export const tokens = (mode: Mode) => ({
           800: "#2a2d64",
           900: "#151632",
         },
+        status: {
+          reject: "#ff4d4d",
+          accepted: "#4caf50",
+          processed: "#4caf50",
+          pending: "#ff9800",
+          processing: "#2196f3",
+        },
       }
     : {
         grey: {
@@ -118,6 +125,13 @@ export const tokens = (mode: Mode) => ({
           700: "#a4a9fc",
           800: "#c3c6fd",
           900: "#e1e2fe",
+        },
+        status: {
+          reject: "#ff6666",
+          accepted: "#66bb6a",
+          processed: "#66bb6a",
+          pending: "#ffb74d",
+          processing: "#64b5f6",
         },
       }),
 });

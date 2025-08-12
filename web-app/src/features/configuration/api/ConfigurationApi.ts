@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { SystemConfiguration } from "@ui/shared-models";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const token = localStorage.getItem("token");
@@ -99,19 +100,3 @@ export const deleteSystemConfiguration = async (id: string) => {
     throw error;
   }
 };
-
-interface Approver {
-  approverEmail: string;
-  order: number;
-}
-
-interface SystemConfiguration {
-  id: number;
-  key: string;
-  value: string;
-  totalApprovers: number;
-  visible: boolean;
-  approvers: Approver[];
-  min: number;
-  max: number;
-}

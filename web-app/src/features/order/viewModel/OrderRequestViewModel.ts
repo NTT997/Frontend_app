@@ -9,13 +9,22 @@ const useOrderRequestViewModel = () => {
   const email = "admin1@gmail.com"; //dung redux luu user roi lay email ra sau
   const [approverList, setApproverList] = useState([]);
 
+  //error
+  const [error, setError] = useState("");
+  const [openError, setOpenError] = useState(false);
+
   const getListOrderRequestByEmail = async () => {
     const data = await fetchListOrderRequestByEmail(email);
     if (data) setOrderRequests(data);
   };
 
   const acceptOrderRequestStatus = async (id: number, notes: string) => {
-    await updateOrderRequestStatusApprovers(id, notes);
+    try {
+      await updateOrderRequestStatusApprovers(id, notes);
+    } catch (err) {
+      setError(err.message);
+      setOpenError(true);
+    }
   };
 
   const [showDialog, setShowDialog] = useState(false);
@@ -29,6 +38,9 @@ const useOrderRequestViewModel = () => {
     approverList,
     setApproverList,
     acceptOrderRequestStatus,
+    error,
+    openError,
+    setOpenError,
   };
 };
 
