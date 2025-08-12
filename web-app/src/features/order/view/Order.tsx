@@ -13,7 +13,7 @@ const Order: React.FC = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const { orders, setOrders, getListOrder } = useOrderViewModel();
+  const { orders, getListOrder } = useOrderViewModel();
 
   useEffect(() => {
     getListOrder();
@@ -103,7 +103,7 @@ const columns: GridColDef[] = [
   },
   {
     field: "createdBy",
-    headerName: "Created By",
+    headerName: "CREATED BY",
     flex: 1,
   },
 ];

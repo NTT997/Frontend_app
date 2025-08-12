@@ -1,7 +1,10 @@
 import { useState } from "react";
+
 import { fetchListCustomer } from "../../customer/api/CustomerApi";
 import { fetchListProduct } from "../../product/api/productApi";
 import { createOrder } from "../api/orderApi";
+
+import type { Product } from "@ui/shared-models";
 
 const useCreateOrderViewModel = () => {
   //customer
@@ -15,18 +18,16 @@ const useCreateOrderViewModel = () => {
   };
   //product
   const [open, setOpen] = useState(false);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [quantities, setQuantities] = useState({});
   const [search, setSearch] = useState("");
-  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
 
   const filteredProducts = products.filter((p) =>
     p.sku.toLowerCase().includes(search.toLowerCase())
   );
 
-  const toggleSelect = (product) => {
-    console.log("toggle select:", product);
-
+  const toggleSelect = (product: Product) => {
     const exist = selectedProducts.find((p) => p.id === product.id);
     if (exist) {
       setSelectedProducts(selectedProducts.filter((p) => p.id !== product.id));
@@ -42,17 +43,17 @@ const useCreateOrderViewModel = () => {
     }
   };
 
-  const removeItem = (product) => {
+  const removeItem = (product: Product) => {
     setSelectedProducts(selectedProducts.filter((p) => p.id !== product.id));
   };
 
   const handleConfirm = () => {
-    alert(`Chose ${selectedProducts.length} products`);
+    console.log(`Chose ${selectedProducts.length} products`);
     setOpen(false);
   };
 
   //payment
-  const [paymentMethod, setPaymentMethod] = useState([]); //chua xai (goi them api)
+  // const [paymentMethod, setPaymentMethod] = useState([]); //chua xai (goi them api)
   const [paymentData, setPaymentData] = useState(null);
 
   const submitPayment = async (cartId: string, payload: PaymentRequest) => {
@@ -86,7 +87,6 @@ const useCreateOrderViewModel = () => {
         paymentToken: paymentData.token,
         paymentType: "CREDITCARD",
         transactionType: "AUTHORIZECAPTURE",
-        S,
       },
       customerId: selectedCustomer.id,
     };
