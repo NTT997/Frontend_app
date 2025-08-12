@@ -1,3 +1,4 @@
+import type { AddToCart, PersistableOrder } from "@ui/shared-models";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -48,7 +49,7 @@ export const fetchListOrder = async () => {
 
 export const createOrder = async (
   cartCode: string,
-  payload: PaymentRequest
+  payload: PersistableOrder
 ) => {
   console.log("payload: ", payload);
   try {
@@ -63,6 +64,25 @@ export const createOrder = async (
       }
     );
     return data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error("Backend error:", err.response?.data);
+    }
+  }
+};
+
+export const addToCart = async (productCart: AddToCart) => {
+  try {
+    console.log("product Cart to addToCart", productCart);
+
+    const res = await axios.post(
+      `${BASE_URL}/public/shoppingcart/cart`,
+      productCart
+    );
+    if (res) {
+      return res.data;
+    }
+    return null;
   } catch (err) {
     if (axios.isAxiosError(err)) {
       console.error("Backend error:", err.response?.data);

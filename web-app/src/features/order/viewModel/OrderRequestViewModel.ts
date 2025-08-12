@@ -3,24 +3,38 @@ import {
   fetchListOrderRequestByEmail,
   updateOrderRequestStatusApprovers,
 } from "../api/orderRequestApi";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../store/store";
 
 const useOrderRequestViewModel = () => {
   const [orderRequests, setOrderRequests] = useState([]);
-  const email = "admin1@gmail.com"; //dung redux luu user roi lay email ra sau
   const [approverList, setApproverList] = useState([]);
+
+  //redux
+  const userId = useSelector((state: RootState) => state.user.userId);
 
   //error
   const [error, setError] = useState("");
   const [openError, setOpenError] = useState(false);
 
   const getListOrderRequestByEmail = async () => {
-    const data = await fetchListOrderRequestByEmail(email);
-    if (data) setOrderRequests(data);
+    if (userId !== null) {
+      const data = await fetchListOrderRequestByEmail(userId);
+      if (data) setOrderRequests(data);
+    }
   };
 
   const acceptOrderRequestStatus = async (id: number, notes: string) => {
     try {
-      await updateOrderRequestStatusApprovers(id, notes);
+      if (userId !== null) {
+        const result = await updateOrderRequestStatusApprovers(
+          id,
+          userId,
+          notes
+        );
+        console.log(result.message);
+        confirm(result);
+      }
     } catch (err) {
       setError(err.message);
       setOpenError(true);

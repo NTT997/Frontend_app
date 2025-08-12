@@ -1,14 +1,17 @@
 import axios from "axios";
+import { fetchUserById } from "../../../services/UserService";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const token = localStorage.getItem("token");
 
-export const fetchListOrderRequestByEmail = async (email: string) => {
+export const fetchListOrderRequestByEmail = async (userId: string) => {
   try {
+    const user = await fetchUserById(Number(userId));
+
     const res = await axios.get(
       `${BASE_URL}/private/ordering/orders/requests/approver`,
       {
-        params: { email },
+        params: { email: user.emailAddress },
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -26,24 +29,28 @@ export const fetchListOrderRequestByEmail = async (email: string) => {
 
 export const updateOrderRequestStatusApprovers = async (
   requestId: number,
+  userId: string,
   notes?: string
 ) => {
   try {
+    const user = await fetchUserById(Number(userId));
+
     const res = await axios.patch(
       `${BASE_URL}/private/ordering/orders/requests/${requestId}/accept`,
       notes ? { notes } : {},
       {
-        params: { approverEmail: "admin1@gmail.com" },
+        params: { approverEmail: user.emailAddress },
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }
     );
+    console.log(res.data);
     return res.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data?.message || error.message);
+      throw new Error(error.response?.data);
     }
     throw new Error("unknown error");
   }
