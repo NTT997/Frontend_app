@@ -20,8 +20,16 @@ export class CrudService {
     return this.api.defaults.baseURL || '';
   }
 
-  get<T = any>(path: string, params?: Record<string, string | string[]>, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    return this.api.get<T>(path, { params, ...config });
+  get<T = any>(
+    path: string,
+    params?: Record<string, string | string[]>,
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<T>> {
+    const axiosConfig: AxiosRequestConfig = { ...config };
+    if (params) {
+      axiosConfig.params = params;
+    }
+    return this.api.get<T>(path, axiosConfig);
   }
 
   getWithEmpty<T = any>(path: string, params?: Record<string, string | string[]>): Promise<T | null> {

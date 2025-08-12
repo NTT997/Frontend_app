@@ -24,6 +24,8 @@
  */
 
 // Add more models below
+
+export * from "./models/Configuration";
 export * from "./models/Address";
 export * from "./models/Country";
 export * from "./models/Language";
@@ -37,4 +39,8 @@ export * from "./models/Product/Product";
 export * from "./models/Product/Attribute";
 export * from "./models/Product/Option";
 export * from "./models/Product/OptionValue";
-export * from "./models/Configuration";
+export * from "./models/Customer";
+export * from "./models/Cart";
+export * from "./models/Order/Order";
+export * from "./models/Order/OrderProduct";
+export * from "./models/Order/Payment";
