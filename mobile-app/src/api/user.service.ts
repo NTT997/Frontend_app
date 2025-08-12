@@ -11,6 +11,7 @@ export class UserService {
     constructor(crudService?: CrudService) {
         this.crudService = crudService ?? new CrudService();
     }
+    
 
     async getProfile(): Promise<any | null> {
         try {

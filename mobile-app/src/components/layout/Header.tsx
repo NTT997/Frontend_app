@@ -1,17 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import SideMenuModal from '../common/sideMenu';
 
 const Header = () => {
     const insets = useSafeAreaInsets();
+    const [menuVisible, setMenuVisible] = useState(false);
+
+    const openMenu = () => setMenuVisible(true);
+    const closeMenu = () => setMenuVisible(false);
 
     return (
         <View style={[styles.header, { paddingTop: insets.top }]}>
             <View style={styles.headerRow}>
                 <TouchableOpacity
                     style={styles.iconButton}
-                    onPress={() => { /* TODO: open menu */ }}
+                    onPress={openMenu}
                     accessibilityLabel="Open menu"
                     accessibilityRole="button">
                     <Feather name="menu" size={24} color="white" />
@@ -28,13 +33,14 @@ const Header = () => {
                     </TouchableOpacity>
                 </View>
             </View>
+            <SideMenuModal visible={menuVisible} onClose={closeMenu} />
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     header: {
-        height: 90,
+        flex: 1,
         backgroundColor: '#0A3D91',
         borderBottomLeftRadius: 40,
         borderBottomRightRadius: 40,

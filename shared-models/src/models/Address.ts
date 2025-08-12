@@ -3,10 +3,19 @@
  * This structure is commonly used in both customer and merchant address records.
  */
 export interface Address {
-  stateProvince: string; // Typically a zone or state code
-  country: string;       // ISO country code
-  address: string;
   postalCode: string;
+  countryCode: string | null;
+  firstName: string;
+  lastName: string;
+  bilstateOther: string | null;
+  company: string;
+  phone: string;
+  address: string;
   city: string;
-  active: boolean;
+  stateProvince: string;
+  billingAddress: boolean;
+  latitude: number | null;
+  longitude: number | null;
+  zone: string;
+  country: string;
 }

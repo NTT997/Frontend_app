@@ -14,3 +14,22 @@ export interface Category {
     store: string;
     id?: number;
 }
+
+export interface CategoryList extends Category {
+    number: number;
+    categories: Category[];
+    recordsTotal: number;
+    recordsFiltered: number;
+    totalPages: number;
+}
+
+/**
+ * Request payload for fetching category hierarchy from root.
+ * `filter` can contain values like "FEATURED_CATEGORIES", "VISIBLE_ONLY".
+ */
+export interface CategoryHierarchyRequest {
+  count: number;
+  filter: string[];
+  name?: string;
+  page: number;
+}
