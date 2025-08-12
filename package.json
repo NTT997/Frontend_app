@@ -7,6 +7,7 @@
     "mobile-app"
   ],
   "dependencies": {
+    "@stripe/stripe-js": "github:stripe/stripe-js",
     "react-pro-sidebar": "^0.7.1"
   }
 }

@@ -9,12 +9,16 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
-
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
 
+//components
 import Header from "../../../components/Header";
+import ErrorPopup from "../../../components/ErrorPopup";
+
+//view Model
 import useOrderRequestViewModel from "../viewModel/OrderRequestViewModel";
+
 import { useEffect } from "react";
 import { tokens } from "../../../theme/theme";
 
@@ -70,7 +74,10 @@ const OrdeRequest = () => {
           >
             <RemoveRedEyeIcon />
           </IconButton>
-          <IconButton sx={{ color: colors.greenAccent[500] }}>
+          <IconButton
+            onClick={() => acceptOrderRequestStatus(params.row.id, "")}
+            sx={{ color: colors.greenAccent[500] }}
+          >
             <CheckCircleOutlineIcon />
           </IconButton>
           <IconButton sx={{ color: colors.redAccent[500] }}>
@@ -121,6 +128,9 @@ const OrdeRequest = () => {
     approverList,
     setApproverList,
     acceptOrderRequestStatus,
+    error,
+    setOpenError,
+    openError,
   } = useOrderRequestViewModel();
 
   useEffect(() => {
@@ -161,6 +171,14 @@ const OrdeRequest = () => {
       >
         <DataGrid columns={columns} rows={orderRequests} />
       </Box>
+
+      {error && (
+        <ErrorPopup
+          onClose={() => setOpenError(false)}
+          errorMessage={error}
+          open={openError}
+        />
+      )}
 
       {/* Show dialog when click View Details */}
       <Dialog

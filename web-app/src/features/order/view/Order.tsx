@@ -1,8 +1,10 @@
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
+import { Box, useTheme } from "@mui/material";
 
 import Header from "../../../components/Header";
-import { Box, useTheme } from "@mui/material";
+import StatusDisplay from "../../../components/StatusDisplay";
+
 import { tokens } from "../../../theme/theme";
 import useOrderViewModel from "../viewModel/orderViewModel";
 import { useEffect } from "react";
@@ -94,6 +96,10 @@ const columns: GridColDef[] = [
     field: "orderStatus",
     headerName: "STATUS",
     flex: 1,
+    renderCell: (params) => {
+      console.log(params.value);
+      return <StatusDisplay status={params.value} />;
+    },
   },
   {
     field: "createdBy",
