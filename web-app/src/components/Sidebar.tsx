@@ -249,6 +249,10 @@ const Sidebar = () => {
                   title: "Create Configuration",
                   to: "/configuration/create-configuration",
                 },
+                {
+                  title: "Job scheduler",
+                  to: "/configuration/scheduler",
+                },
               ]}
             />
           </Box>

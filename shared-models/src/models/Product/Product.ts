@@ -37,6 +37,12 @@ export interface Product {
 
   rentalDuration: number;
   rentalPeriod: number;
+  image: productImage;
+  images: productImage[];
+}
+
+interface productImage {
+  name: string, path: string
 }
 
 export interface CategoryRef {
@@ -96,5 +102,5 @@ export interface ReadableProduct {
   subtotal: string;
   attributes: string;
   sku: string;
-  image: string;  
+  image: string;
 }

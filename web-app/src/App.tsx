@@ -23,6 +23,7 @@ import CreateConfiguration from "./features/configuration/view/CreateConfigurati
 
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
+import JobSchedulerConfiguration from "./features/configuration/view/JobSchedulerConfiguration";
 
 function AppContent() {
   const location = useLocation();
@@ -48,6 +49,10 @@ function AppContent() {
             <Route
               path="create-configuration/:idParams?"
               element={<CreateConfiguration />}
+            />
+            <Route
+              path="scheduler"
+              element={<JobSchedulerConfiguration />}
             />
           </Route>
           <Route path="*" element={<div>404 - Not Found</div>} />

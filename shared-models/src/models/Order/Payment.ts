@@ -5,3 +5,11 @@ export interface Payment {
     paymentType?: string;
     transactionType: string;
 }
+
+export interface Card {
+    cardType: string,
+    ccCvv: string,
+    ccExpires: string,
+    ccNumber: string,
+    ccOwner: string
+}

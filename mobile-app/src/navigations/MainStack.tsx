@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import OrdersScreen from '../screens/Main/Orders/OrdersScreen';
 import InventoryScreen from '../screens/Main/Inventory/Inventory';
 import ReportScreen from '../screens/Main/Report/Report';
+import OrdersStack from './OrderStack';
 
 export type MainStackParamList = {
   Dashboard: undefined;
@@ -22,13 +23,6 @@ const MainStack = () => {
         headerShown: false, // hide default header (using custom Header component)
         tabBarIcon: ({ color, size }) => {
           let iconName: React.ComponentProps<typeof Feather>['name'] = 'circle';
-
-          // if (route.name === 'Dashboard') {
-          //   iconName = 'home';
-          // }
-          // else if (route.name === 'Orders') {
-          //   iconName = 'clipboard';
-          // }
 
           switch (route.name) {
             case 'Dashboard':
@@ -61,7 +55,7 @@ const MainStack = () => {
       })}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
-      <Tab.Screen name="Orders" component={OrdersScreen} />      
+      <Tab.Screen name="Orders" component={OrdersStack} options={{ headerShown: false }}/>      
       <Tab.Screen name="Inventory" component={InventoryScreen} />
       <Tab.Screen name="Report" component={ReportScreen} />
     </Tab.Navigator>

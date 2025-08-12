@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import SideMenuModal from '../common/sideMenu';
+import SideMenuModal from '../../common/sideMenu';
 
 const Header = () => {
     const insets = useSafeAreaInsets();

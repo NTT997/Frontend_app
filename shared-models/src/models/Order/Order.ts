@@ -1,11 +1,30 @@
 
 import { Address } from "../Address";
-import { Product } from "../Product/Product";
+import { Customer } from "../Customer";
 import { ReadableOrderProduct } from "./OrderProduct";
-import { Payment } from "./Payment";
+import { Card, Payment } from "./Payment";
 
 export interface Order {
-
+    id?: number;
+    attributes: OrderAttributes[];
+    billing: Address;
+    comments: string;
+    confirmedAddress: boolean;
+    CreditCard?: Card[];
+    currency: string;
+    customer: Customer;
+    customerAgreed: boolean;
+    datePurchased: Date;
+    delivery: Address;
+    orderStatus: string[];
+    paymentModule: string;
+    paymentType: string;
+    previousOrderStatus: string[];
+    product: ReadableOrderProduct[];
+    shippingModule: string;
+    store: string;
+    total: OrderTotal;
+    totals: OrderTotal[];
 }
 
 export interface OrderList {

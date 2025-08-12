@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
-import Header from '@/components/layout/Header';
+import Header from '@/components/layout/Header/Header';
 import { useDashboardViewModel } from '../Dashboard/DashboardViewModel'; // Adjust path accordingly
 
 const InventoryScreen = () => {
