@@ -25,7 +25,7 @@ export class productService {
    * Example:
    * /public/products?available=true&category=51&count=10&lang=en&manufacturer=1&origin=shop&page=0
    */
-    async findByFilter(params: {
+    async getProductList(params: {
         available?: boolean;
         category?: number;
         count?: number;
@@ -44,7 +44,7 @@ export class productService {
             });
 
             const response: AxiosResponse<ProductList> = await this.crudService.get(
-                '/public/products',
+                '/public/v2/products',
                 queryParams
             );
 
