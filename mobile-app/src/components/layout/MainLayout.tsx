@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { SafeAreaView, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import Header from './header';
+import Header from './Header/Header';
 
 interface MainLayoutProps {
     children: ReactNode;
@@ -51,12 +51,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     header: {
-        flex: 0.5,
+        height: 90,
         backgroundColor: '#0A3D91',
         borderBottomLeftRadius: 40,
         borderBottomRightRadius: 40,
-        paddingHorizontal: 16,
-        paddingTop: 48, // for status bar padding (adjust as needed)
+        paddingHorizontal: 0,
+        paddingTop: 0, // for status bar padding (adjust as needed)
         justifyContent: 'center',
     },
     headerRow: {

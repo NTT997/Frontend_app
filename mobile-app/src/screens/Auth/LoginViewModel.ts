@@ -17,29 +17,45 @@ export function useLoginViewModel() {
     password: '',
   });
 
+  // Modal visibility states
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
+
+  // Show error modal when error changes
   useEffect(() => {
     if (error) {
-      Alert.alert('Login Failed', error);
+      setErrorModalVisible(true);
     }
   }, [error]);
 
+  // Show success modal when login succeeds
   useEffect(() => {
     if (isLoggedIn && userId) {
-      Alert.alert('Login Successful', `Welcome User ID: ${userId}`);
-      // Optionally navigate here or handle post-login logic
+      setSuccessModalVisible(true);
     }
   }, [isLoggedIn, userId]);
 
+  // Handle login
   const handleLogin = () => {
     if (loading) return;
     Keyboard.dismiss();
     dispatch(loginAsync(userLogin));
   };
 
+  // Modal close handlers
+  const closeErrorModal = () => setErrorModalVisible(false);
+  const closeSuccessModal = () => setSuccessModalVisible(false);
+
   return {
     userLogin,
     setUserLogin,
     loading,
     handleLogin,
+    errorModalVisible,
+    closeErrorModal,
+    error,
+    successModalVisible,
+    closeSuccessModal,
+    userId,
   };
 }

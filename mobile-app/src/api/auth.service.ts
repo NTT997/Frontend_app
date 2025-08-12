@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosResponse } from 'axios';
 import { CrudService } from './crud.service';
 import { AuthResponse } from '../types/authResponse';
+import { ReadableUser } from '@ui/shared-models';
+import Constant from '../utils/constant';
 
 // export interface AuthResponse {
 //   token: string;
@@ -12,8 +14,8 @@ import { AuthResponse } from '../types/authResponse';
 
 export class AuthService {
   private crudService: CrudService;
-  private tokenKey = 'auth_token';
-  private userIdKey = 'auth_user_id';
+  private tokenKey = Constant.AUTH_TOKEN;
+  private userIdKey = Constant.USER_ID;
 
   constructor(crudService?: CrudService) {
     this.crudService = crudService ?? new CrudService();
@@ -63,5 +65,23 @@ export class AuthService {
   async getCurrentUser(): Promise<AuthResponse | null> {
     const json = await AsyncStorage.getItem(this.userIdKey);
     return json ? JSON.parse(json) : null;
+  }
+
+  async findById(id: number): Promise<ReadableUser | null> {
+    try {
+      const token = await this.getToken();
+      if (!token) throw new Error('No auth token found');
+
+      const response: AxiosResponse<ReadableUser> = await this.crudService.get(
+        `/private/user-service/users/${id}`,
+        undefined,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('[AuthService] Find user by ID failed', error);
+      return null;
+    }
   }
 }

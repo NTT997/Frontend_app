@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ActivityIndicator, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import AuthLayout from '@/components/layout/AuthLayout';
 import { useLoginViewModel } from './LoginViewModel';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginAsync } from '@/redux/authSlice';
 import type { RootState, AppDispatch } from '@/redux/store';
 
 export default function LoginScreen() {
-  const dispatch = useDispatch<AppDispatch>();
   const authState = useSelector((state: RootState) => state.auth);
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const { userLogin, setUserLogin } = useLoginViewModel();
-  
+  const {
+    userLogin,
+    setUserLogin,
+    loading,
+    handleLogin,
+    errorModalVisible,
+    closeErrorModal,
+    error,
+    successModalVisible,
+    closeSuccessModal,
+    userId,
+  } = useLoginViewModel();
+
   const onLoginPress = () => {
     if (authState.loading) return;
-    dispatch(loginAsync(userLogin));
+    handleLogin();
   };
 
   return (
@@ -83,6 +92,24 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Error Modal */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={errorModalVisible}
+          onRequestClose={closeErrorModal}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>Login Failed</Text>
+              <Text style={styles.errorMessage}>{error}</Text>
+              <TouchableOpacity style={styles.closeButton} onPress={closeErrorModal}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     </AuthLayout>
   );
@@ -149,4 +176,46 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   loginButtonText: { color: '#fff', fontSize: 16, fontWeight: '500' },
+
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 24,
+    borderRadius: 8,
+    minWidth: 250,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  errorMessage: {
+    fontSize: 16,
+    color: 'red',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  successMessage: {
+    fontSize: 16,
+    color: 'green',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  closeButton: {
+    backgroundColor: '#0A3D91',
+    paddingVertical: 8,
+    paddingHorizontal: 24,
+    borderRadius: 4,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontWeight: '600',
+  },
 });

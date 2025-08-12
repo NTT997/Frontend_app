@@ -1,4 +1,3 @@
-// import { useNavigate } from "react-router-dom";
 import useLoginViewModel from "../viewModel/loginViewModel";
 import {
   Box,
@@ -14,11 +13,6 @@ const LoginScreen = () => {
   const { username, setUsername, password, setPassword, error, handleLogin } =
     useLoginViewModel();
 
-  // const navigate = useNavigate();
-  // const handleFakeLogin = () => {
-  //   navigate("/dashboard");
-  // };
-
   return (
     <Box
       display="flex"
@@ -26,33 +20,53 @@ const LoginScreen = () => {
       alignItems="center"
       width="100vw"
       height="100vh"
-      sx={{ bgcolor: "primary.main" }}
+      sx={{
+        background: "linear-gradient(135deg, #2193b0, #6dd5ed)", // gradient hiện đại
+      }}
     >
       <Container maxWidth="sm">
-        <Paper elevation={4} sx={{ padding: 4, marginTop: 4 }}>
-          <Typography variant="h2" component="h1" gutterBottom align="center">
-            Login
+        <Paper
+          elevation={6}
+          sx={{
+            padding: 5,
+            borderRadius: 4,
+            backdropFilter: "blur(6px)",
+            backgroundColor: "rgba(255,255,255,0.9)",
+          }}
+        >
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            align="center"
+            sx={{ fontWeight: 700, color: "primary.main" }}
+          >
+            Welcome Back
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            color="text.secondary"
+            sx={{ mb: 3 }}
+          >
+            Please login to continue
           </Typography>
 
           {error && (
-            <Alert severity="error" sx={{ marginBottom: 2 }}>
+            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
               {error}
             </Alert>
           )}
 
           <form onSubmit={handleLogin}>
-            <Box
-              display="flex"
-              flexDirection="column"
-              gap={3}
-              sx={{ marginTop: 3 }}
-            >
+            <Box display="flex" flexDirection="column" gap={3}>
               <TextField
                 label="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 fullWidth
+                variant="outlined"
               />
 
               <TextField
@@ -62,9 +76,20 @@ const LoginScreen = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 fullWidth
+                variant="outlined"
               />
 
-              <Button variant="contained" type="submit" fullWidth>
+              <Button
+                variant="contained"
+                type="submit"
+                fullWidth
+                sx={{
+                  py: 1.5,
+                  borderRadius: 3,
+                  fontWeight: 600,
+                  letterSpacing: 1,
+                }}
+              >
                 LOGIN
               </Button>
             </Box>

@@ -22,6 +22,7 @@ import useConfigurationViewModel from "../viewModel/configurationViewModel";
 
 import UpdateOutlinedIcon from "@mui/icons-material/UpdateOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 
 const Configuration = () => {
   const theme = useTheme();
@@ -60,18 +61,19 @@ const Configuration = () => {
       flex: 1,
       renderCell: (params) => (
         <Button
-          variant="contained"
           onClick={() => {
             setShowDialog(true);
             setListApprovers(params.row.approvers);
           }}
           sx={{
-            "&:hover": {
-              backgroundColor: colors.blueAccent[700],
-            },
+            background: colors.greenAccent[700],
+            borderRadius: "28px",
+            paddingX: "12px",
+            gap: "4px",
           }}
         >
-          Details
+          <RemoveRedEyeIcon />
+          <Typography>Details</Typography>
         </Button>
       ),
     },
@@ -80,7 +82,7 @@ const Configuration = () => {
       headerName: "ACTION",
       flex: 1,
       renderCell: (params) => (
-        <Box display={"flex"} flexDirection={"row"} alignItems={"center"}>
+        <Box display={"flex"} flexDirection={"row"} pt={0.5}>
           <IconButton
             sx={{ color: colors.blueAccent[400] }}
             onClick={() => {
@@ -104,13 +106,6 @@ const Configuration = () => {
     { field: "id", headerName: "ID" },
     { field: "approverEmail", headerName: "APPROVER EMAIL", flex: 1 },
     { field: "order", headerName: "ORDER", flex: 1 },
-    // {
-    //   field: "dateCreated",
-    //   headerName: "CREATED AT",
-    //   flex: 1,
-    //   renderCell: (params) => <span>{params.row.dateCreated}</span>,
-    // },
-    // { field: "auditSection.dateModified", headerName: "UPDATED AT", flex: 1 },
   ];
 
   const {

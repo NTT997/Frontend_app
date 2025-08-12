@@ -7,6 +7,7 @@ interface AuthState {
   token: string | null;
   error: string | null;
   userId?: number;
+  hasShownGreeting?: boolean; // Optional field to track greeting state
 }
 
 const initialState: AuthState = {
@@ -15,6 +16,7 @@ const initialState: AuthState = {
   token: null,
   error: null,
   userId: undefined,
+  hasShownGreeting: false, // Initialize greeting state
 };
 
 // Async thunk for login
@@ -23,7 +25,7 @@ export const loginAsync = createAsyncThunk<
   { username: string; password: string },
   { rejectValue: string }
 >(
-  'auth/login',
+  'user/login',
   async (credentials, { rejectWithValue }) => {
     try {
       const authService = new AuthService();
@@ -56,6 +58,17 @@ const authSlice = createSlice({
     // Optional: local logout action if needed
     resetError(state) {
       state.error = null;
+    },
+    setHasShownGreeting(state, action: PayloadAction<boolean>) {
+      state.hasShownGreeting = action.payload;
+    },
+    resetAuth(state) {
+      state.isLoggedIn = false;
+      state.token = null;
+      state.userId = undefined;
+      state.hasShownGreeting = false;
+      state.error = null;
+      state.loading = false;
     },
   },
   extraReducers: (builder) => {
@@ -95,6 +108,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { resetError } = authSlice.actions;
+export const { setHasShownGreeting, resetAuth , resetError} = authSlice.actions;
 
 export default authSlice.reducer;

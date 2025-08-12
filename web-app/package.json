@@ -21,6 +21,10 @@
     "@nivo/pie": "^0.99.0",
     "@react-navigation/native": "^7.1.17",
     "@react-navigation/stack": "^7.4.5",
+
+    "@stripe/react-stripe-js": "^3.9.0",
+    "@stripe/stripe-js": "^1.54.2",
+
     "@ui/shared-models": "file:../shared-models",
     "axios": "^1.11.0",
     "cronstrue": "^3.2.0",
@@ -30,6 +34,7 @@
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.13.1",
     "react-pro-sidebar": "^0.7.1",
+    "react-redux": "^9.2.0",
     "react-router-dom": "^7.7.1",
     "yup": "^1.7.0"
   },

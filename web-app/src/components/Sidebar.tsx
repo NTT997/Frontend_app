@@ -19,9 +19,8 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 import userImage from "../assets/react.svg";
-
+import { useSelector } from "react-redux";
 import { fetchUserById } from "../services/UserService";
-
 //config for subMenu
 type SubMenuPropsFix = {
   title?: string;
@@ -92,20 +91,20 @@ const Item: React.FC<ItemProps> = ({
 };
 
 const Sidebar = () => {
-  //dirty code
-  const [user, setUser] = useState<User | null>(null);
+  const userId = useSelector((state) => state.user.userId);
+  const [user, setUser] = useState(null);
+
+  const getUserById = async () => {
+    const userData = await fetchUserById(userId);
+    if (userData) {
+      console.log(userData);
+      setUser(userData);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const id = Number(localStorage.getItem("id"));
-      if (!isNaN(id)) {
-        const data = await fetchUserById(id);
-        setUser(data);
-      }
-    };
-
-    fetchData();
-  }, []);
+    getUserById();
+  }, [userId]);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);

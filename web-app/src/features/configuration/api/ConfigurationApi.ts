@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { SystemConfiguration } from "@ui/shared-models";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const token = localStorage.getItem("token");

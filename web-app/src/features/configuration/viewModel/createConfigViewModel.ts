@@ -6,22 +6,12 @@ import {
   updateSystemConfiguration,
 } from "../api/ConfigurationApi";
 import { useNavigate } from "react-router-dom";
+//share models
+import type { SystemConfiguration, Approver } from "@ui/shared-models";
 
-type Approver = {
-  approverEmail: string;
-  order: number;
-};
-
-interface SystemConfiguration {
-  id: number;
-  key: string;
-  value: string;
-  totalApprovers: number;
-  visible: boolean;
-  approvers: Approver[];
-  min: number;
-  max: number;
-}
+//redux
+import type { RootState } from "../../../store/store";
+import { useSelector } from "react-redux";
 
 const useCreateConfigViewModel = () => {
   //get selected system configuration to update
@@ -39,12 +29,15 @@ const useCreateConfigViewModel = () => {
   const debounceTimeout = React.useRef<number | null>(null);
 
   //state for updating configuration
-  const [selectedConfig, setSelectedConfig] = useState(null);
+  const [selectedConfig, setSelectedConfig] =
+    useState<SystemConfiguration | null>(null);
   const [id, setId] = useState(0);
 
   const [emails, setEmails] = useState<string[]>([]);
-
   const [approvers, setApprovers] = useState<Approver[]>([]);
+
+  //get id from redux
+  const userId = useSelector((state: RootState) => state.user.userId);
 
   const handleSelectEmail = (email: string) => {
     // Kiểm tra email đã có trong approvers chưa
@@ -80,10 +73,14 @@ const useCreateConfigViewModel = () => {
       key: configKey,
       value: configName,
       totalApprovers: approvers.length,
-      visible: true,
       approvers: approvers,
       min: minValue,
       max: maxValue,
+      auditSection: {
+        dateCreated: new Date().toISOString(),
+        dateModified: new Date().toISOString(),
+        modifiedBy: userId || null,
+      },
     };
     if (id === 0) {
       await createSystemConfiguration(newConfig);
