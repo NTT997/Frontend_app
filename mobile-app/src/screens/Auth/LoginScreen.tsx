@@ -33,7 +33,7 @@ export default function LoginScreen() {
         {/* Upper Section */}
         <View style={styles.upperSection}>
           <Image
-            source={require('../../../assets/images/favicon.png')}
+            source={require('../../../assets/images/btm_logo.png')}
             style={styles.logo}
             resizeMode="contain"
           />

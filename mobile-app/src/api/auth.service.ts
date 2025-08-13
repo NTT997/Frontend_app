@@ -4,6 +4,8 @@ import { CrudService } from './crud.service';
 import { AuthResponse } from '../types/authResponse';
 import { ReadableUser } from '@ui/shared-models';
 import Constant from '../utils/constant';
+import store from '@/redux/store';
+import { getLocalData, removeLocalData } from '@/utils/helper';
 
 // export interface AuthResponse {
 //   token: string;
@@ -16,6 +18,7 @@ export class AuthService {
   private crudService: CrudService;
   private tokenKey = Constant.AUTH_TOKEN;
   private userIdKey = Constant.USER_ID;
+  private userProfile = Constant.USER_PROFILE;
 
   constructor(crudService?: CrudService) {
     this.crudService = crudService ?? new CrudService();
@@ -32,8 +35,11 @@ export class AuthService {
       const authData = response.data;
 
       if (authData != null) {
+        await AsyncStorage.multiRemove([this.tokenKey, this.userIdKey, this.userProfile]);
         await AsyncStorage.setItem(this.tokenKey, authData.token);
-        await AsyncStorage.setItem(this.userIdKey, JSON.stringify(authData));
+        await AsyncStorage.setItem(this.userIdKey, authData.id.toString());
+        const profile = await this.findById(authData.id);
+        await AsyncStorage.setItem(this.userProfile, JSON.stringify(profile));
       }
 
       return authData;
@@ -69,7 +75,7 @@ export class AuthService {
 
   async findById(id: number): Promise<ReadableUser | null> {
     try {
-      const token = await this.getToken();
+      const token = getLocalData(this.tokenKey);
       if (!token) throw new Error('No auth token found');
 
       const response: AxiosResponse<ReadableUser> = await this.crudService.get(

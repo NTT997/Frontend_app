@@ -13,7 +13,7 @@ export interface AddToCart {
 }
 
 export interface ReadableShoppingCart {
-    code?: string;
+    code: string;
     subtotal?: number;
     displaySubTotal?: string;
     total?: number;

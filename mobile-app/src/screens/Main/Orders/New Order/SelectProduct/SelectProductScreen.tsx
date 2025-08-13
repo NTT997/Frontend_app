@@ -4,7 +4,6 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  StyleSheet,
   ActivityIndicator,
   Alert,
   Modal,
@@ -16,12 +15,20 @@ import {
 import ChildLayout from '@/components/layout/ChildLayout';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { productService } from '@/api/product.service';
-import { Product, Description } from '@ui/shared-models';
+import { Product } from '@ui/shared-models';
+import styles from './SelectProduct.style'
+import { CartService } from '@/api/cart.service';
+import { AddToCart } from '@ui/shared-models';
+import { Feather } from '@expo/vector-icons';
 
 type SelectedProduct = {
   sku: string;
   quantity: number;
+  price: number;
+  image?: string;
 };
+
+type Cart = AddToCart;
 
 const SelectProductScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -32,6 +39,7 @@ const SelectProductScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantityInput, setQuantityInput] = useState<string>('0');
+  const cartService = new CartService();
 
   // Track multiple selected products
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
@@ -58,10 +66,8 @@ const SelectProductScreen: React.FC = () => {
     fetchProducts();
   }, []);
 
-  const getProductName = (descriptions?: Description[], lang = 'en'): string => {
-    if (!descriptions || descriptions.length === 0) return 'Unnamed Product';
-    const descByLang = descriptions.find((d) => d.language === lang);
-    return descByLang?.name || descriptions[0].name || 'Unnamed Product';
+  const getProductSku = (sku?: string) => {
+    return sku || 'Unknown SKU';
   };
 
   // Get quantity already selected for product (if any)
@@ -108,23 +114,77 @@ const SelectProductScreen: React.FC = () => {
     if (selectedProduct) {
       setSelectedProducts((prev) => {
         const existsIndex = prev.findIndex((p) => p.sku === selectedProduct.sku);
+        const newEntry = {
+          sku: selectedProduct.sku,
+          quantity,
+          price: selectedProduct.price ?? 0,
+          image: selectedProduct.image?.path,
+        };
         if (existsIndex >= 0) {
           const newSelections = [...prev];
-          newSelections[existsIndex] = { sku: selectedProduct.sku, quantity };
+          newSelections[existsIndex] = newEntry;
           return newSelections;
         } else {
-          return [...prev, { sku: selectedProduct.sku, quantity }];
+          return [...prev, newEntry];
         }
       });
     }
     setModalVisible(false);
   };
 
-  const finishSelection = () => {
-    if (route.params?.onSelect) {
-      route.params.onSelect(selectedProducts);
+  const finishSelection = async () => {
+    if (selectedProducts.length === 0) {
+      Alert.alert('No products selected', 'Please select at least one product.');
+      return;
     }
-    navigation.goBack();
+
+    try {
+      const firstProduct = selectedProducts[0];
+
+      const createPayload: AddToCart = {
+        product: firstProduct.sku,
+        quantity: firstProduct.quantity,
+      };
+
+      const createdCart = await cartService.createCart(createPayload);
+
+      if (!createdCart) {
+        Alert.alert('Error', 'Failed to create cart.');
+        return;
+      }
+
+      const cartCode = createdCart.code;
+
+      if (!createdCart) {
+        Alert.alert('Error', 'Failed to create cart.');
+        return;
+      }
+
+      for (let i = 1; i < selectedProducts.length; i++) {
+        const product = selectedProducts[i];
+        const updatePayload: AddToCart = {
+          product: product.sku,
+          quantity: product.quantity,
+        };
+
+        const updatedCart = await cartService.updateCart(cartCode, updatePayload);
+
+        if (!updatedCart) {
+          Alert.alert('Error', `Failed to add product ${product.sku} to cart.`);
+          return;
+        }
+      }
+
+      if (route.params?.onSelect) {
+        route.params.onSelect(selectedProducts, cartCode);
+      }
+      
+      navigation.goBack();
+
+    } catch (error) {
+      console.error('Cart operation error:', error);
+      Alert.alert('Error', 'Unexpected error while processing the cart.');
+    }
   };
 
   return (
@@ -143,7 +203,6 @@ const SelectProductScreen: React.FC = () => {
             renderItem={({ item }) => (
               <TouchableOpacity style={styles.item} onPress={() => openQuantityModal(item)}>
                 <View style={styles.itemContent}>
-                  {/* Image */}
                   {item.image ? (
                     <Image source={{ uri: item.image.path }} style={styles.productImage} />
                   ) : (
@@ -151,13 +210,14 @@ const SelectProductScreen: React.FC = () => {
                       <Text style={styles.imagePlaceholderText}>No Image</Text>
                     </View>
                   )}
-
-                  {/* Info: SKU and Quantity */}
                   <View style={styles.productInfo}>
-                    <Text style={styles.sku}>SKU: {item.sku}</Text>
-                    <Text style={styles.quantity}>
-                      Inventory: {item.quantity ?? 0}
-                    </Text>
+                    <View style={styles.rowBetween}>
+                      <Text style={styles.sku}>SKU: {item.sku}</Text>
+                      <Text style={styles.price}>
+                        ${item.price != null ? Number(Math.round(item.price)).toLocaleString(undefined) : '0'}
+                      </Text>
+                    </View>
+                    <Text style={styles.quantity}>Inventory: {item.quantity ?? 0}</Text>
                     <Text style={styles.selectedQuantity}>
                       Selected: {getSelectedQuantity(item.sku)}
                     </Text>
@@ -169,17 +229,58 @@ const SelectProductScreen: React.FC = () => {
 
           {/* Show summary of selected products */}
           {selectedProducts.length > 0 && (
-            <View style={styles.selectionSummary}>
-              <Text style={styles.selectionSummaryTitle}>Selected Products:</Text>
-              <ScrollView horizontal contentContainerStyle={{ paddingHorizontal: 10 }}>
-                {selectedProducts.map((p) => (
-                  <View key={p.sku} style={styles.selectedProductBadge}>
-                    <Text style={styles.selectedProductText}>
-                      {p.sku} × {p.quantity}
-                    </Text>
-                  </View>
-                ))}
+            <View style={styles.bottomSheet}>
+              <ScrollView contentContainerStyle={styles.bottomSheetContent}>
+                {selectedProducts.map((p) => {
+                  const prod = products.find((prod) => prod.sku === p.sku);
+                  const unitPrice = prod?.price ?? 0;
+                  const totalPrice = unitPrice * p.quantity;
+
+                  return (
+                    <View key={p.sku} style={styles.item}>
+                      <View style={styles.itemContent}>
+                        {prod?.image ? (
+                          <Image source={{ uri: prod.image.path }} style={styles.productImage} />
+                        ) : (
+                          <View style={styles.imagePlaceholder}>
+                            <Text style={styles.imagePlaceholderText}>No Image</Text>
+                          </View>
+                        )}
+                        <View style={styles.productInfo}>
+                          <View style={styles.rowBetween}>
+                            <Text style={styles.sku}>SKU: {p.sku}</Text>
+                            <Text style={styles.price}>
+                              ${Number(Math.round(unitPrice)).toLocaleString(undefined)}
+                            </Text>
+                          </View>
+                          <Text style={styles.quantity}>Selected: {p.quantity}</Text>
+                          <Text style={styles.totalPrice}>
+                            Total: ${Number(Math.round(totalPrice)).toLocaleString(undefined)}
+                          </Text>
+
+                          {/* Remove icon */}
+                          <Pressable
+                            onPress={() => {
+                              setSelectedProducts((prev) =>
+                                prev.filter((item) => item.sku !== p.sku)
+                              );
+                            }}
+                            style={{ position: 'absolute', right: 0, top: 8, padding: 8 }}
+                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          >
+                            <Feather name="trash-2" size={20} color="red" />
+                          </Pressable>
+                        </View>
+                      </View>
+                    </View>
+                  );
+
+                })}
               </ScrollView>
+
+              <Pressable style={styles.doneButton} onPress={finishSelection}>
+                <Text style={styles.doneButtonText}>Done</Text>
+              </Pressable>
             </View>
           )}
 
@@ -202,7 +303,7 @@ const SelectProductScreen: React.FC = () => {
             <Text style={styles.modalTitle}>
               Enter Quantity for{' '}
               <Text style={{ fontWeight: 'bold' }}>
-                {getProductName(selectedProduct?.descriptions)}
+                {getProductSku(selectedProduct?.sku)}
               </Text>
             </Text>
 
@@ -251,169 +352,6 @@ const SelectProductScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  itemContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  productImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 6,
-    marginRight: 12,
-    resizeMode: 'cover',
-  },
-  imagePlaceholder: {
-    width: 60,
-    height: 60,
-    borderRadius: 6,
-    marginRight: 12,
-    backgroundColor: '#ddd',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imagePlaceholderText: {
-    color: '#888',
-    fontSize: 12,
-  },
-  productInfo: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  quantity: {
-    fontSize: 14,
-    color: '#333',
-    marginTop: 4,
-  },
-  selectedQuantity: {
-    fontSize: 14,
-    color: '#0A3D91',
-    marginTop: 2,
-    fontWeight: '600',
-  },
-  item: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  sku: {
-    fontSize: 14,
-    color: '#777',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 20,
-    width: '100%',
-    maxWidth: 400,
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 18,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  quantityInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  qtyButton: {
-    backgroundColor: '#0A3D91',
-    borderRadius: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginHorizontal: 8,
-  },
-  qtyButtonText: {
-    color: 'white',
-    fontSize: 24,
-    fontWeight: '600',
-    lineHeight: 24,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 16,
-    width: 80,
-    textAlign: 'center',
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 6,
-    marginHorizontal: 5,
-  },
-  cancelButton: {
-    backgroundColor: '#ccc',
-  },
-  okButton: {
-    backgroundColor: '#0A3D91',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  selectionSummary: {
-    marginVertical: 12,
-  },
-  selectionSummaryTitle: {
-    fontWeight: '600',
-    marginBottom: 6,
-    fontSize: 16,
-    color: '#0A3D91',
-    paddingLeft: 10,
-  },
-  selectedProductBadge: {
-    backgroundColor: '#0A3D91',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  selectedProductText: {
-    color: 'white',
-    fontWeight: '600',
-  },
-  doneButton: {
-    backgroundColor: '#0A3D91',
-    borderRadius: 8,
-    paddingVertical: 14,
-    marginHorizontal: 20,
-    marginBottom: 20,
-  },
-  doneButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-});
+
 
 export default SelectProductScreen;

@@ -3,9 +3,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import OrdersScreen from '@/screens/Main/Orders/OrdersScreen';
 import NewOrderScreen from '@/screens/Main/Orders/New Order/NewOrderScreen';
 import HistoryScreen from '@/screens/Main/Orders/OrderHistoryScreen';
-import PendingScreen from '@/screens/Main/Orders/PendingOrderScreen';
-import SelectCustomerScreen from '@/screens/Main/Orders/New Order/SelectCustomerScreen';
-import SelectProductScreen from '@/screens/Main/Orders/New Order/SelectProductScreen';
+import PendingScreen from '@/screens/Main/Orders/PendingOrder/PendingOrderScreen';
+import SelectCustomerScreen from '@/screens/Main/Orders/New Order/SelectCustomer/SelectCustomerScreen';
+import SelectProductScreen from '@/screens/Main/Orders/New Order/SelectProduct/SelectProductScreen';
 
 export type OrdersStackParamList = {
     OrdersMain: undefined;

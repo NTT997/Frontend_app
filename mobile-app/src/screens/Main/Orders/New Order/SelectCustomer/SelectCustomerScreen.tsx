@@ -1,9 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import {
+    View,
+    Text,
+    FlatList,
+    TouchableOpacity,
+    StyleSheet,
+    ActivityIndicator,
+    Dimensions,
+    ScrollView
+} from 'react-native';
 import ChildLayout from '@/components/layout/ChildLayout';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { CustomerService } from '@/api/customer.service';
 import { Customer } from '@ui/shared-models';
+import styles from './SelectCustomer.style';
+import CustomerListView from './CustomerListView';
+import CustomerDetailView from './CustomerDetailView';
+
+const { width } = Dimensions.get('window');
 
 const SelectCustomerScreen = () => {
     const navigation = useNavigation();
@@ -11,6 +25,9 @@ const SelectCustomerScreen = () => {
 
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const [mode, setMode] = useState<'list' | 'detail'>('list'); // track view mode
+    const [selectedIndex, setSelectedIndex] = useState(0);
 
     useEffect(() => {
         const fetchCustomers = async () => {
@@ -36,10 +53,17 @@ const SelectCustomerScreen = () => {
         if (route.params?.onSelect) {
             route.params.onSelect({
                 id: customer.id,
-                name: customer.emailAddress,
+                name: `${customer.firstName} ${customer.lastName}`,
+                email: customer.emailAddress,
+                gender: customer.gender
             });
         }
         navigation.goBack();
+    };
+
+    const openDetailView = (index: number) => {
+        setSelectedIndex(index);
+        setMode('detail');
     };
 
     if (loading) {
@@ -52,51 +76,27 @@ const SelectCustomerScreen = () => {
         );
     }
 
-    return (
+return (
         <ChildLayout title="Select Customer">
-            {customers.length > 0 ? (
-                <FlatList
-                    data={customers}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity style={styles.item} onPress={() => handleSelect(item)}>
-                            <Text style={styles.text}>{item.emailAddress}</Text>
-                        </TouchableOpacity>
-                    )}
+            {mode === 'list' ? (
+                <CustomerListView
+                    customers={customers}
+                    onCardPress={(index) => {
+                        setSelectedIndex(index);
+                        setMode('detail');
+                    }}
+                    onNewCustomer={() => console.log('TODO: Create new customer')}
                 />
             ) : (
-                <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>No customers found</Text>
-                </View>
+                <CustomerDetailView
+                    customers={customers}
+                    selectedIndex={selectedIndex}
+                    onSelectCustomer={handleSelect}
+                    onBack={() => setMode('list')}
+                />
             )}
         </ChildLayout>
     );
 };
-
-const styles = StyleSheet.create({
-    loadingContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    emptyContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    emptyText: {
-        fontSize: 16,
-        color: '#666',
-    },
-    item: {
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    text: {
-        fontSize: 16,
-        color: '#333',
-    },
-});
 
 export default SelectCustomerScreen;

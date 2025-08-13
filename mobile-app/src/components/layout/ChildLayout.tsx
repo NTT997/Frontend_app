@@ -5,14 +5,15 @@ import CustomHeader from './Header/CustomHeader';
 interface ChildLayoutProps {
   children: ReactNode;
   title: string;
+  filterTarget?: string;
 }
 
-const ChildLayout: React.FC<ChildLayoutProps> = ({ children, title }) => {
+const ChildLayout: React.FC<ChildLayoutProps> = ({ children, title , filterTarget}) => {
   return (
     <View style={styles.container}>
       {/* Curved background with header */}
       <View style={styles.header}>
-        <CustomHeader title={title} />
+        <CustomHeader title={title} filterTarget={filterTarget}/>
       </View>
 
       {/* Screen content */}

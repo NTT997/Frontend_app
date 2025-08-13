@@ -6,9 +6,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type CustomHeaderProps = {
   title: string;
+  filterTarget?: string;
 };
 
-const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
+const CustomHeader: React.FC<CustomHeaderProps> = ({ title, filterTarget }) => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
@@ -30,7 +31,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
 
         {/* Filter button */}
         <TouchableOpacity
-          onPress={() => navigation.navigate('FilterPage' as never)}
+          onPress={() => navigation.navigate(filterTarget as never)}
           style={styles.iconButton}
           accessibilityLabel="Open filter"
           accessibilityRole="button"
