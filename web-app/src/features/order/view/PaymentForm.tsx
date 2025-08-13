@@ -1,5 +1,5 @@
 // src/components/PaymentForm.jsx
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Box,
   FormControl,
@@ -29,8 +29,9 @@ const PaymentFormInner = ({
   const elements = useElements();
   const [loading, setLoading] = useState(false);
 
-  //error
+  // Error state
   const [openError, setOpenError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleGenerateToken = async () => {
     if (!stripe || !elements) return;
@@ -42,11 +43,8 @@ const PaymentFormInner = ({
 
     if (error) {
       console.error(error);
-      <ErrorPopup
-        errorMessage={error}
-        onClose={() => setOpenError(false)}
-        open={openError}
-      />;
+      setErrorMessage(error.message || "Something went wrong");
+      setOpenError(true);
       setLoading(false);
       return;
     }
@@ -64,32 +62,80 @@ const PaymentFormInner = ({
 
   return (
     <>
-      <Box mt={2}>
+      {/* Thẻ nhập thông tin thẻ */}
+      <Box mt={2} sx={{ p: 1.5, border: "1px solid #ddd", borderRadius: 2 }}>
         <CardElement options={{ style: { base: { fontSize: "16px" } } }} />
       </Box>
+
+      {/* Nút tạo token */}
       <Box mt={2}>
         <Button
           variant="contained"
+          color="primary"
           onClick={handleGenerateToken}
           disabled={loading}
+          sx={{
+            textTransform: "none",
+            fontWeight: 600,
+            borderRadius: 2,
+            px: 3,
+            "&:hover": { backgroundColor: "#1976d2" },
+          }}
         >
           {loading ? "Processing..." : "Generate Token"}
         </Button>
       </Box>
+
+      {/* Popup báo lỗi */}
+      <ErrorPopup
+        open={openError}
+        errorMessage={errorMessage}
+        onClose={() => setOpenError(false)}
+      />
     </>
   );
 };
 
-const PaymentForm = ({ onPaymentChange }) => {
+const PaymentForm = ({ onPaymentChange, store, getStore }) => {
   const [paymentModule, setPaymentModule] = useState("stripe");
   const [environment, setEnvironment] = useState("TEST");
-  const [publishableKey, setPublishableKey] = useState(
+  const [publishableKey] = useState(
     "pk_test_51RlmCSCNMdKsUXus3GW6O1Y6U3HJxu7N7mdNcFWq3AH7kiB4MFgOq7lBhcmIjfdDH8DuVZYXnUbW5sL3TFTD5K6E00YLwrCl8p"
   );
 
+  // Dùng useMemo để tránh loadStripe lại mỗi lần render
+  const stripePromise = useMemo(
+    () => loadStripe(publishableKey),
+    [publishableKey]
+  );
+
+  const handleMoneyOrderConfirm = () => {
+    onPaymentChange({
+      paymentModule: "moneyorder",
+      environment,
+      token: null,
+    });
+    alert("Money Order selected!");
+  };
+
+  useEffect(() => {
+    getStore();
+  }, []);
+
   return (
-    <Box mt={2} p={2} border="1px solid #ccc" borderRadius={2}>
-      <Typography variant="h6">Payment</Typography>
+    <Box
+      mt={2}
+      p={3}
+      sx={{
+        border: "1px solid #ccc",
+        borderRadius: 3,
+        backgroundColor: "#fafafa",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+      }}
+    >
+      <Typography variant="h6" fontWeight={600} gutterBottom>
+        Payment
+      </Typography>
 
       {/* Chọn phương thức */}
       <FormControl>
@@ -104,11 +150,16 @@ const PaymentForm = ({ onPaymentChange }) => {
             control={<Radio />}
             label="Cash on Delivery"
           />
+          <FormControlLabel
+            value="moneyorder"
+            control={<Radio />}
+            label="Money Order"
+          />
         </RadioGroup>
       </FormControl>
 
       {/* Chọn môi trường */}
-      {paymentModule === "stripe" && (
+      {(paymentModule === "stripe" || paymentModule === "moneyorder") && (
         <FormControl sx={{ mt: 1 }}>
           <FormLabel>Environment</FormLabel>
           <RadioGroup
@@ -121,9 +172,9 @@ const PaymentForm = ({ onPaymentChange }) => {
         </FormControl>
       )}
 
-      {/* Nhập thẻ */}
+      {/* Stripe */}
       {paymentModule === "stripe" && publishableKey && (
-        <Elements stripe={loadStripe(publishableKey)}>
+        <Elements stripe={stripePromise}>
           <PaymentFormInner
             paymentModule={paymentModule}
             environment={environment}
@@ -131,6 +182,33 @@ const PaymentForm = ({ onPaymentChange }) => {
             publishableKey={publishableKey}
           />
         </Elements>
+      )}
+
+      {/* Money Order */}
+      {paymentModule === "moneyorder" && (
+        <Box mt={2} sx={{ p: 2, border: "1px dashed #ccc", borderRadius: 2 }}>
+          <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
+            Please send your money order to:
+            {"\n"}
+            {store.name}
+            {"\n"}
+            {store.address.address}, {store.address.city}
+          </Typography>
+          <Button
+            sx={{
+              mt: 1.5,
+              textTransform: "none",
+              fontWeight: 600,
+              borderRadius: 2,
+              px: 3,
+            }}
+            variant="contained"
+            color="primary"
+            onClick={handleMoneyOrderConfirm}
+          >
+            Confirm Money Order
+          </Button>
+        </Box>
       )}
     </Box>
   );

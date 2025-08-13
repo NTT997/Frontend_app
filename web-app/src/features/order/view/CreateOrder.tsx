@@ -38,6 +38,9 @@ const CreateOrder = () => {
     openError,
     setOpenError,
     error,
+    //store
+    store,
+    getStoreInfo,
   } = useCreateOrderViewModel();
 
   useEffect(() => {
@@ -65,7 +68,11 @@ const CreateOrder = () => {
         quantities={quantities}
         setQuantities={setQuantities}
       />
-      <PaymentForm onPaymentChange={setPaymentData} />
+      <PaymentForm
+        onPaymentChange={setPaymentData}
+        store={store}
+        getStore={getStoreInfo}
+      />
 
       <Button
         variant="contained"

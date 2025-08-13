@@ -68,7 +68,12 @@ const ProductSelector = ({
                     size="small"
                     value={quantities[p.id] || 1}
                     onChange={(e) => {
-                      const newQty = parseInt(e.target.value) || 0;
+                      let newQty = parseInt(e.target.value) || 0;
+                      if (newQty > p.quantity) {
+                        alert(`Không đủ tồn kho: ${p.quantity}`);
+                        newQty = p.quantity;
+                      }
+                      if (newQty < 1) newQty = 1;
                       setQuantities((prev) => ({
                         ...prev,
                         [p.id]: newQty,
@@ -115,6 +120,7 @@ const ProductSelector = ({
                 <TableCell>Id</TableCell>
                 <TableCell>Sku</TableCell>
                 <TableCell>Price</TableCell>
+                <TableCell>Quantity</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -139,6 +145,7 @@ const ProductSelector = ({
                     <TableCell>{product.id}</TableCell>
                     <TableCell>{product.sku}</TableCell>
                     <TableCell>{product.finalPrice}</TableCell>
+                    <TableCell>{product.quantity}</TableCell>
                   </TableRow>
                 ))
               ) : (

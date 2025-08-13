@@ -19,6 +19,7 @@ const statusIcons = {
   PENDING: <HourglassEmptyIcon />,
   PROCESSING: <AutorenewIcon />,
   CLOSED: <CancelIcon />,
+  APPROVED: <CheckCircleIcon />,
 };
 
 const StatusDisplay = ({ status }) => {
@@ -31,6 +32,7 @@ const StatusDisplay = ({ status }) => {
     PENDING: colors.status.pending,
     PROCESSING: colors.status.processing,
     ACCEPTED: colors.status.accepted,
+    APPROVED: colors.status.approved,
   };
   const color = statusColorMap[status] || colors.grey[500];
 

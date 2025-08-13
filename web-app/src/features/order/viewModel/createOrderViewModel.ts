@@ -4,15 +4,26 @@ import { fetchListCustomer } from "../../customer/api/CustomerApi";
 import { fetchListProduct } from "../../product/api/productApi";
 import { createOrder, addToCart } from "../api/orderApi";
 
-import type {
-  AddToCart,
-  Customer,
-  Payment,
-  PersistableOrder,
-  Product,
+import {
+  type Store,
+  type AddToCart,
+  type Customer,
+  type Payment,
+  type PersistableOrder,
+  type Product,
 } from "@ui/shared-models";
+import { fetchStoreInfo } from "../../store/api/storeApi";
 
 const useCreateOrderViewModel = () => {
+  //store
+  const [store, setStore] = useState<Store | null>(null);
+  const getStoreInfo = async () => {
+    const data = await fetchStoreInfo();
+    if (data) {
+      setStore(data);
+    }
+  };
+
   //error
   const [openError, setOpenError] = useState(false);
   const [error, setError] = useState("");
@@ -171,6 +182,9 @@ const useCreateOrderViewModel = () => {
     error,
     openError,
     setOpenError,
+    //store
+    getStoreInfo,
+    store,
   };
 };
 

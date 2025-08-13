@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { login } from "../../../store/userSlice";
 
 import type { userLogin } from "@ui/shared-models";
+import { fetchUserById } from "../../../services/UserService";
 
 const useLoginViewModel = () => {
   const navigate = useNavigate();
@@ -32,7 +33,8 @@ const useLoginViewModel = () => {
         localStorage.setItem("id", data.id);
         localStorage.setItem("token", data.token);
 
-        dispatch(login(data.id));
+        const user = await fetchUserById(data.id);
+        dispatch(login({ id: data.id, email: user.emailAddress }));
 
         alert("Đăng nhập thành công");
 
