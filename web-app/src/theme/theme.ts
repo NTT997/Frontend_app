@@ -64,10 +64,11 @@ export const tokens = (mode: Mode) => ({
         },
         status: {
           reject: "#ff4d4d",
-          accepted: "#4caf50",
+          accepted: "#1976D2",
           processed: "#4caf50",
           pending: "#ff9800",
-          processing: "#2196f3",
+          processing: "#FF9800",
+          approved: "#2E7D32",
         },
       }
     : {
@@ -131,7 +132,8 @@ export const tokens = (mode: Mode) => ({
           accepted: "#66bb6a",
           processed: "#66bb6a",
           pending: "#ffb74d",
-          processing: "#64b5f6",
+          processing: "#FF9800",
+          approved: "#2196F3	",
         },
       }),
 });

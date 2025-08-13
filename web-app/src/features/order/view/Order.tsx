@@ -97,12 +97,11 @@ const columns: GridColDef[] = [
     headerName: "STATUS",
     flex: 1,
     renderCell: (params) => {
-      console.log(params.value);
       return <StatusDisplay status={params.value} />;
     },
   },
   {
-    field: "createdBy",
+    field: "username",
     headerName: "CREATED BY",
     flex: 1,
   },
