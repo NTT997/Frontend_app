@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { AuthService } from '@/api/auth.service';
-import { ReadableUser } from '@ui/shared-models';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { AuthService } from "@/api/auth.service";
+import { ReadableUser } from "@ui/shared-models";
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -19,7 +19,7 @@ const initialState: AuthState = {
   error: null,
   userId: undefined,
   hasShownGreeting: false, // Initialize greeting state
-  profile: null
+  profile: null,
 };
 
 // Async thunk for login
@@ -27,53 +27,47 @@ export const loginAsync = createAsyncThunk<
   { token: string; userId: number },
   { username: string; password: string },
   { rejectValue: string }
->(
-  'user/login',
-  async (credentials, { rejectWithValue }) => {
-    try {
-      const authService = new AuthService();
-      const response = await authService.login(credentials);
+>("user/login", async (credentials, { rejectWithValue }) => {
+  try {
+    const authService = new AuthService();
+    const response = await authService.login(credentials);
 
-      if (!response || !response.token) {
-        return rejectWithValue('Invalid username or password');
-      }
-
-      // AuthService already stores token & user info in AsyncStorage
-      return { token: response.token, userId: response.id };
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message || 'Login failed. Please try again.';
-      return rejectWithValue(message);
+    if (!response || !response.token) {
+      return rejectWithValue("Invalid username or password");
     }
+
+    // AuthService already stores token & user info in AsyncStorage
+    return { token: response.token, userId: response.id };
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.message || "Login failed. Please try again.";
+    return rejectWithValue(message);
   }
-);
+});
 
 export const fetchUserProfile = createAsyncThunk<
   ReadableUser,
   number,
   { rejectValue: string }
->(
-  'auth/fetchUserProfile',
-  async (userId, { rejectWithValue }) => {
-    try {
-      const authService = new AuthService();
-      const profile = await authService.findById(userId);
-      if (!profile) return rejectWithValue('User profile not found');
-      return profile;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to fetch user profile');
-    }
+>("auth/fetchUserProfile", async (userId, { rejectWithValue }) => {
+  try {
+    const authService = new AuthService();
+    const profile = await authService.findById(userId);
+    if (!profile) return rejectWithValue("User profile not found");
+    return profile;
+  } catch (error: any) {
+    return rejectWithValue(error.message || "Failed to fetch user profile");
   }
-);
+});
 
 // Async thunk for logout
-export const logoutAsync = createAsyncThunk('auth/logout', async () => {
+export const logoutAsync = createAsyncThunk("auth/logout", async () => {
   const authService = new AuthService();
   await authService.logout();
 });
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     resetError(state) {
@@ -114,7 +108,7 @@ const authSlice = createSlice({
       )
       .addCase(loginAsync.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload ?? 'Login failed';
+        state.error = action.payload ?? "Login failed";
         state.isLoggedIn = false;
         state.token = null;
         state.userId = undefined;
@@ -136,7 +130,7 @@ const authSlice = createSlice({
       )
       .addCase(fetchUserProfile.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload ?? 'Failed to load user profile';
+        state.error = action.payload ?? "Failed to load user profile";
         state.profile = null;
       })
 

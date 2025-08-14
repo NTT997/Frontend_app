@@ -1,106 +1,267 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import ChildLayout from '@/components/layout/ChildLayout';
-import { OrderRequestService } from '@/api/orderRequest.service';
-import { AppDispatch, RootState } from '@/redux/store';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserProfile } from '@/redux/authSlice';
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+} from "react-native";
+import { fetchListOrderRequestByEmail } from "@/api/orderRequestApi";
 
-const PendingScreen = () => {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const userId = useSelector((state: RootState) => state.auth.userId);
-  const profile = useSelector((state: RootState) => state.auth.profile);
-  const dispatch = useDispatch<AppDispatch>();
+type ApprovalStatus = "PENDING" | "ACCEPTED" | "REJECTED";
+
+type OrderRequestApproval = {
+  id: number;
+  approvedBy: string | null;
+  orders: number;
+  status: ApprovalStatus;
+  approvedTime: string | null;
+  approvedNotes: string | null;
+};
+
+type ApproverRequestItem = {
+  id: number;
+  code: string;
+  createdBy: string | null;
+  orderId: number;
+  createdAt: string;
+  listOrderRequestApproval: OrderRequestApproval[];
+  configId: number;
+  status: ApprovalStatus;
+};
+
+type Props = {
+  email: string;
+};
+
+const STATUSES: ApprovalStatus[] = ["PENDING", "ACCEPTED", "REJECTED"];
+
+export default function ApproverRequestsScreen({ email }: Props) {
+  const [status, setStatus] = useState<ApprovalStatus>("PENDING");
+  const [data, setData] = useState<ApproverRequestItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const getListOrderRequests = useCallback(
+    async (s: ApprovalStatus) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetchListOrderRequestByEmail(email, s);
+        setData(res ?? []);
+      } catch (e: any) {
+        setError(e?.message || "Không tải được dữ liệu");
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [email]
+  );
 
   useEffect(() => {
-    if (userId) {
-      dispatch(fetchUserProfile(userId));
-    }
-  }, [userId, dispatch]);
+    getListOrderRequests(status);
+  }, [status, getListOrderRequests]);
 
-  const fetchPendingOrders = async () => {
-    setLoading(true);
-    try {
-      const service = new OrderRequestService();
-
-      const data = await service.fetchListOrderRequestByEmail({
-        email: profile?.emailAddress,
-        status: 'PENDING',
-      });
-      setOrders(data);
-    } catch (error) {
-      console.error('Failed to fetch pending orders', error);
-      Alert.alert('Error', 'Failed to load pending orders.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPendingOrders();
-  }, []);
-
-  const renderItem = ({ item }: { item: any }) => (
-    <View style={styles.orderCard}>
-      <View style={styles.rowBetween}>
-        <Text style={styles.orderCode}>Order: {item.code}</Text>
-        <View style={styles.iconRow}>
+  const renderStatusFilter = () => (
+    <View style={styles.filterRow}>
+      {STATUSES.map((s) => {
+        const active = s === status;
+        return (
           <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => console.log('View order', item.id)}
+            key={s}
+            onPress={() => setStatus(s)}
+            style={[styles.chip, active && styles.chipActive]}
           >
-            <Feather name="eye" size={20} color="#0A3D91" />
+            <Text style={[styles.chipText, active && styles.chipTextActive]}>
+              {s}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => console.log('Details order', item.id)}
+        );
+      })}
+    </View>
+  );
+
+  const renderApproval = (a: OrderRequestApproval) => (
+    <View key={a.id} style={styles.approvalRow}>
+      <Text style={styles.approvalText}>
+        {a.approvedBy ?? "N/A"} • {a.status} • Order {a.orders}
+      </Text>
+      {a.approvedTime ? (
+        <Text style={styles.approvalSub}>
+          {new Date(a.approvedTime).toLocaleString()}
+        </Text>
+      ) : null}
+      {a.approvedNotes ? (
+        <Text style={styles.approvalSub}>Note: {a.approvedNotes}</Text>
+      ) : null}
+    </View>
+  );
+
+  const renderItem = ({ item }: { item: ApproverRequestItem }) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.code}>{item.code}</Text>
+        {item.status ? (
+          <Text
+            style={[
+              styles.badge,
+              styles[
+                item.status.toLowerCase() as "accepted" | "pending" | "rejected"
+              ],
+            ]}
           >
-            <Feather name="info" size={20} color="#0A3D91" />
-          </TouchableOpacity>
-        </View>
+            {item.status}
+          </Text>
+        ) : (
+          <Text style={[styles.badge, styles.pending]}>PENDING</Text>
+        )}
       </View>
-      <Text>Customer: {item.customer?.name ?? 'Unknown'}</Text>
-      <Text>Total: ${item.total?.toLocaleString() ?? 0}</Text>
+      <Text style={styles.meta}>
+        Order ID: {item.orderId} • Created:{" "}
+        {new Date(item.createdAt).toLocaleString()}
+      </Text>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Approvals</Text>
+        {item.listOrderRequestApproval?.length ? (
+          item.listOrderRequestApproval.map(renderApproval)
+        ) : (
+          <Text style={styles.emptyLine}>No approvals</Text>
+        )}
+      </View>
     </View>
   );
 
   return (
-    <ChildLayout title="Pending Orders">
-      <View style={styles.container}>
-        {loading ? (
-          <ActivityIndicator size="large" color="#0A3D91" />
-        ) : orders.length === 0 || orders == null ? (
-          <Text style={styles.emptyText}>No pending orders found.</Text>
-        ) : (
-          <FlatList
-            data={orders}
-            keyExtractor={(item) => item.orders?.toString() ?? item.code ?? Math.random().toString()}
-            renderItem={renderItem}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
-        )}
-      </View>
-    </ChildLayout>
-  );
-};
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.screenTitle}>Approver Requests</Text>
+      {renderStatusFilter()}
 
-export default PendingScreen;
+      {loading ? (
+        <View style={styles.center}>
+          <ActivityIndicator />
+          <Text style={styles.loadingText}>Loading…</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.center}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity
+            onPress={() => getListOrderRequests(status)}
+            style={styles.retryBtn}
+          >
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={data}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={renderItem}
+          contentContainerStyle={
+            data.length === 0 ? styles.centerList : undefined
+          }
+          ListEmptyComponent={
+            <Text style={styles.empty}>Không có dữ liệu</Text>
+          }
+        />
+      )}
+    </SafeAreaView>
+  );
+}
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  emptyText: { textAlign: 'center', marginTop: 20, fontSize: 16, color: 'gray' },
-  orderCard: {
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+  container: { flex: 1, paddingHorizontal: 16 },
+  screenTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginTop: 8,
     marginBottom: 12,
-    backgroundColor: '#fff',
   },
-  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  orderCode: { fontWeight: 'bold' },
-  iconRow: { flexDirection: 'row', gap: 12 },
-  iconButton: { padding: 4 },
+  filterRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 8,
+    flexWrap: "wrap",
+  },
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    backgroundColor: "#fff",
+  },
+  chipActive: { borderColor: "#333" },
+  chipText: { fontSize: 13, color: "#444" },
+  chipTextActive: { fontWeight: "700", color: "#111" },
+
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  centerList: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+
+  loadingText: { marginTop: 8, color: "#666" },
+  errorText: { color: "#c62828", textAlign: "center", marginBottom: 12 },
+  retryBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    backgroundColor: "#111",
+  },
+  retryText: { color: "#fff", fontWeight: "600" },
+
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 12,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: "#eee",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  code: { fontSize: 16, fontWeight: "700" },
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    overflow: "hidden",
+    fontSize: 12,
+    color: "#fff",
+  },
+  accepted: { backgroundColor: "#2e7d32" },
+  pending: { backgroundColor: "#f9a825" },
+  rejected: { backgroundColor: "#c62828" },
+  meta: { marginTop: 6, color: "#666" },
+
+  section: { marginTop: 10 },
+  sectionTitle: { fontWeight: "700", marginBottom: 6 },
+  approvalRow: {
+    paddingVertical: 6,
+    borderTopWidth: 1,
+    borderTopColor: "#f1f1f1",
+  },
+  approvalText: { fontSize: 13, fontWeight: "600" },
+  approvalSub: { fontSize: 12, color: "#666", marginTop: 2 },
+  emptyLine: { fontSize: 12, color: "#999" },
+  empty: { color: "#666" },
 });
