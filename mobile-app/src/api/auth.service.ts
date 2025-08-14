@@ -1,11 +1,11 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AxiosResponse } from 'axios';
-import { CrudService } from './crud.service';
-import { AuthResponse } from '../types/authResponse';
-import { ReadableUser } from '@ui/shared-models';
-import Constant from '../utils/constant';
-import store from '@/redux/store';
-import { getLocalData, removeLocalData } from '@/utils/helper';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AxiosResponse } from "axios";
+import { CrudService } from "./crud.service";
+import { AuthResponse } from "../types/authResponse";
+import { ReadableUser } from "@ui/shared-models";
+import Constant from "../utils/constant";
+import store from "@/redux/store";
+import { getLocalData, removeLocalData } from "@/utils/helper";
 
 // export interface AuthResponse {
 //   token: string;
@@ -24,18 +24,22 @@ export class AuthService {
     this.crudService = crudService ?? new CrudService();
   }
 
-  async login(data: { username: string; password: string }): Promise<AuthResponse | null> {
+  async login(data: {
+    username: string;
+    password: string;
+  }): Promise<AuthResponse | null> {
     try {
-
-      const response: AxiosResponse<AuthResponse> = await this.crudService.post<AuthResponse>(
-        '/user/login',
-        data
-      );
+      const response: AxiosResponse<AuthResponse> =
+        await this.crudService.post<AuthResponse>("/user/login", data);
 
       const authData = response.data;
 
       if (authData != null) {
-        await AsyncStorage.multiRemove([this.tokenKey, this.userIdKey, this.userProfile]);
+        await AsyncStorage.multiRemove([
+          this.tokenKey,
+          this.userIdKey,
+          this.userProfile,
+        ]);
         await AsyncStorage.setItem(this.tokenKey, authData.token);
         await AsyncStorage.setItem(this.userIdKey, authData.id.toString());
         const profile = await this.findById(authData.id);
@@ -44,7 +48,7 @@ export class AuthService {
 
       return authData;
     } catch (error) {
-      console.error('[AuthService] Login failed', error);
+      console.error("[AuthService] Login failed", error);
       return null;
     }
   }
@@ -55,7 +59,7 @@ export class AuthService {
       await AsyncStorage.removeItem(this.userIdKey);
       // You can also call an API endpoint for server-side logout if required.
     } catch (error) {
-      console.warn('[AuthService] Logout error', error);
+      console.warn("[AuthService] Logout error", error);
     }
   }
 
@@ -76,7 +80,7 @@ export class AuthService {
   async findById(id: number): Promise<ReadableUser | null> {
     try {
       const token = getLocalData(this.tokenKey);
-      if (!token) throw new Error('No auth token found');
+      if (!token) throw new Error("No auth token found");
 
       const response: AxiosResponse<ReadableUser> = await this.crudService.get(
         `/private/user-service/users/${id}`,
@@ -86,7 +90,7 @@ export class AuthService {
 
       return response.data;
     } catch (error) {
-      console.error('[AuthService] Find user by ID failed', error);
+      console.error("[AuthService] Find user by ID failed", error);
       return null;
     }
   }
