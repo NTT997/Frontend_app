@@ -24,6 +24,7 @@ import CreateConfiguration from "./features/configuration/view/CreateConfigurati
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import JobSchedulerConfiguration from "./features/configuration/view/JobSchedulerConfiguration";
+import LogViewer from "./features/log-monitoring/view/log-monitor-ui";
 
 function AppContent() {
   const location = useLocation();
@@ -54,6 +55,11 @@ function AppContent() {
               path="scheduler"
               element={<JobSchedulerConfiguration />}
             />
+            <Route
+              path="logmonitor"
+              element={<LogViewer />}
+            />
+             
           </Route>
           <Route path="*" element={<div>404 - Not Found</div>} />
         </Routes>
