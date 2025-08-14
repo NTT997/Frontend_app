@@ -32,15 +32,12 @@ export interface ReadableShoppingCartAttribute {
     optionValue: any;
 }
 
-export interface ReadableMinimalProduct {
+export interface ReadableMinimalProduct extends Product {
     id?: number;
-    sku?: string;
     description?: Description;
     productPrice?: ProductPrice;
     finalPrice?: string;
     originalPrice?: string | null;
-    image?: any;
-    images?: any[];
 }
 
 export interface ReadableShoppingCartItem extends ReadableMinimalProduct {

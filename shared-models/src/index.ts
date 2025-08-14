@@ -44,4 +44,5 @@ export * from "./models/Cart";
 export * from "./models/Order/Order";
 export * from "./models/Order/OrderProduct";
 export * from "./models/Order/Payment";
+export * from "./models/Order/OrderRequest";
 export * from "./models/Store";

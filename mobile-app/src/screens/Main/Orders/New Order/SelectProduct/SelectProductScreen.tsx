@@ -1,17 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-  Modal,
-  TextInput,
-  Pressable,
-  Image,
-  ScrollView,
-} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput, Pressable, Image, ScrollView, } from 'react-native';
 import ChildLayout from '@/components/layout/ChildLayout';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { productService } from '@/api/product.service';
@@ -20,6 +8,9 @@ import styles from './SelectProduct.style'
 import { CartService } from '@/api/cart.service';
 import { AddToCart } from '@ui/shared-models';
 import { Feather } from '@expo/vector-icons';
+import { useDispatch } from 'react-redux';
+import { setCartCode } from '@/redux/cartSlice';
+import { saveCartCode } from '@/utils/cartStorage';
 
 type SelectedProduct = {
   sku: string;
@@ -28,18 +19,28 @@ type SelectedProduct = {
   image?: string;
 };
 
+interface RouteParams {
+  preselectedProducts?: SelectedProduct[];
+  cartCode?: string;
+  onSelect?: (products: SelectedProduct[], cartCode: string) => void;
+}
+
 type Cart = AddToCart;
 
 const SelectProductScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute<any>();
+  const dispatch = useDispatch();
 
+  const [cartCode, setCartCodeState] = useState<string | undefined>(undefined);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantityInput, setQuantityInput] = useState<string>('0');
+
   const cartService = new CartService();
+
 
   // Track multiple selected products
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
@@ -64,7 +65,15 @@ const SelectProductScreen: React.FC = () => {
     };
 
     fetchProducts();
-  }, []);
+
+    if (route.params?.preselectedProducts) {
+      setSelectedProducts(route.params.preselectedProducts);
+    }
+    if (route.params?.cartCode) {
+      setCartCodeState(route.params.cartCode);
+      dispatch(setCartCode(route.params.cartCode)); // keep redux in sync
+    }
+  }, [route.params]);
 
   const getProductSku = (sku?: string) => {
     return sku || 'Unknown SKU';
@@ -139,46 +148,52 @@ const SelectProductScreen: React.FC = () => {
     }
 
     try {
-      const firstProduct = selectedProducts[0];
 
-      const createPayload: AddToCart = {
-        product: firstProduct.sku,
-        quantity: firstProduct.quantity,
-      };
+      let activeCartCode = cartCode;
 
-      const createdCart = await cartService.createCart(createPayload);
+      if (!activeCartCode) {
+        const [firstProduct, ...restProducts] = selectedProducts;
 
-      if (!createdCart) {
-        Alert.alert('Error', 'Failed to create cart.');
-        return;
-      }
-
-      const cartCode = createdCart.code;
-
-      if (!createdCart) {
-        Alert.alert('Error', 'Failed to create cart.');
-        return;
-      }
-
-      for (let i = 1; i < selectedProducts.length; i++) {
-        const product = selectedProducts[i];
-        const updatePayload: AddToCart = {
-          product: product.sku,
-          quantity: product.quantity,
+        const createPayload: AddToCart = {
+          product: firstProduct.sku,
+          quantity: firstProduct.quantity,
         };
 
-        const updatedCart = await cartService.updateCart(cartCode, updatePayload);
+        const createdCart = await cartService.createCart(createPayload);
 
-        if (!updatedCart) {
-          Alert.alert('Error', `Failed to add product ${product.sku} to cart.`);
+        if (!createdCart) {
+          Alert.alert('Error', 'Failed to create cart.');
           return;
+        }
+
+        const activeCartCode = createdCart.code;
+        await saveCartCode(activeCartCode);
+        dispatch(setCartCode(activeCartCode));
+
+        for (const product of restProducts) {
+          const updatedCart = await cartService.updateCart(activeCartCode, {
+            product: product.sku,
+            quantity: product.quantity,
+          });
+
+          if (!updatedCart) {
+            return Alert.alert('Error', `Failed to add product ${product.sku} to cart.`);
+          }
+        }
+
+      } else {
+        for (const product of selectedProducts) {
+          const updatedCart = await cartService.updateCart(activeCartCode, {
+            product: product.sku,
+            quantity: product.quantity,
+          });
+          if (!updatedCart) {
+            return Alert.alert('Error', `Failed to add product ${product.sku} to cart.`);
+          }
         }
       }
 
-      if (route.params?.onSelect) {
-        route.params.onSelect(selectedProducts, cartCode);
-      }
-      
+      route.params?.onSelect?.(selectedProducts, activeCartCode);
       navigation.goBack();
 
     } catch (error) {

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export async function setLocalData(key: string, value: string): Promise<void> {
+export async function setLocalData(key: string, value: any): Promise<void> {
     try {
         await AsyncStorage.setItem(key, value);
     } catch (error) {
@@ -16,7 +16,15 @@ export async function removeLocalData(key: string): Promise<void> {
     }
 }
 
-export async function getLocalData(key: string): Promise<string | null> {
+export async function removeLocalMultipleData(key: string[]): Promise<void> {
+    try {
+        await AsyncStorage.multiRemove(key);
+    } catch (error) {
+        console.log('Error removing local data:', error);
+    }
+}
+
+export async function getLocalData(key: string): Promise<any | null> {
     try {
         const data = await AsyncStorage.getItem(key);
         return data;

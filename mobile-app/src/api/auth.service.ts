@@ -4,15 +4,8 @@ import { CrudService } from './crud.service';
 import { AuthResponse } from '../types/authResponse';
 import { ReadableUser } from '@ui/shared-models';
 import Constant from '../utils/constant';
-import store from '@/redux/store';
-import { getLocalData, removeLocalData } from '@/utils/helper';
-
-// export interface AuthResponse {
-//   token: string;
-//   refreshToken?: string;
-//   expiresIn?: number;
-//   // Add any other fields returned by your API
-// }
+import { getLocalData } from '@/utils/helper';
+import { clearCartCodeStorage } from '@/utils/cartStorage';
 
 export class AuthService {
   private crudService: CrudService;
@@ -25,8 +18,8 @@ export class AuthService {
   }
 
   async login(data: { username: string; password: string }): Promise<AuthResponse | null> {
-    try {
 
+    try {
       const response: AxiosResponse<AuthResponse> = await this.crudService.post<AuthResponse>(
         '/user/login',
         data
@@ -36,10 +29,9 @@ export class AuthService {
 
       if (authData != null) {
         await AsyncStorage.multiRemove([this.tokenKey, this.userIdKey, this.userProfile]);
+        
         await AsyncStorage.setItem(this.tokenKey, authData.token);
         await AsyncStorage.setItem(this.userIdKey, authData.id.toString());
-        const profile = await this.findById(authData.id);
-        await AsyncStorage.setItem(this.userProfile, JSON.stringify(profile));
       }
 
       return authData;
@@ -53,6 +45,8 @@ export class AuthService {
     try {
       await AsyncStorage.removeItem(this.tokenKey);
       await AsyncStorage.removeItem(this.userIdKey);
+      await AsyncStorage.removeItem(this.userProfile);
+      await clearCartCodeStorage();
       // You can also call an API endpoint for server-side logout if required.
     } catch (error) {
       console.warn('[AuthService] Logout error', error);
@@ -69,10 +63,11 @@ export class AuthService {
   }
 
   async getCurrentUser(): Promise<AuthResponse | null> {
-    const json = await AsyncStorage.getItem(this.userIdKey);
+    const json = await AsyncStorage.getItem(this.userProfile);
     return json ? JSON.parse(json) : null;
   }
 
+  //only for super admin
   async findById(id: number): Promise<ReadableUser | null> {
     try {
       const token = getLocalData(this.tokenKey);

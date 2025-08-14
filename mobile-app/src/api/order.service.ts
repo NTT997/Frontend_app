@@ -19,16 +19,17 @@ export class orderService {
         page?: number;
         phone?: string;
         status?: string;
+        emailAdmin?: string;
     }): Promise<OrderList[]> {
         try {
             const token = await getLocalData(Constant.AUTH_TOKEN);
             if (!token) throw new Error('No auth token found');
 
-            // Remove any undefined/null values
             const queryParams: Record<string, string> = {};
-            Object.keys(queryParams).forEach(key => {
-                if (queryParams[key] === undefined || queryParams[key] === null) {
-                    delete queryParams[key];
+            Object.keys(params).forEach(key => {
+                const value = params[key as keyof typeof params];
+                if (value !== undefined && value !== null) {
+                    queryParams[key] = String(value);
                 }
             });
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -14,9 +14,15 @@ import { useNavigation } from '@react-navigation/native';
 import { OrdersStackParamList } from '@/navigations/OrderStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import styles from './NewOrder.style';
-import { PersistableOrder } from '@ui/shared-models';
+import { PersistableOrder, ReadableShoppingCartItem } from '@ui/shared-models';
 import { orderService } from '@/api/order.service';
 import { CartService } from '@/api/cart.service';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/redux/store';
+import { clearCartCode } from '@/redux/cartSlice';
+import { clearCartCodeStorage, getCartCode } from '@/utils/cartStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constant from '@/utils/constant';
 
 type NavProps = NativeStackNavigationProp<OrdersStackParamList, 'NewOrder'>;
 
@@ -42,6 +48,39 @@ const NewOrderScreen = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<SelectedCustomer | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
   const [cartCode, setCartCode] = useState('');
+  const reduxCartCode = useSelector((state: RootState) => state.cart.code);
+  const cartService = new CartService();
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    const fetchCartProducts = async () => {
+      if (!reduxCartCode) return;
+
+      try {
+        const cart = await cartService.getCartByCode(reduxCartCode);
+        if (cart?.products?.length) {
+          const mappedProducts: SelectedProduct[] = cart.products.map((item: ReadableShoppingCartItem) => ({
+            sku: item.sku,
+            quantity: item.quantity,
+            price: item.price ?? 0,
+            image: item.image?.path,
+          }));
+
+          setSelectedProducts(mappedProducts);
+          setCartCode(reduxCartCode);
+        } else {
+          setSelectedProducts([]);
+          setCartCode(reduxCartCode);
+        }
+      } catch (error) {
+        console.error('Failed to fetch cart items on load:', error);
+        setSelectedProducts([]);
+        setCartCode('');
+      }
+    };
+
+    fetchCartProducts();
+  }, [reduxCartCode]);
 
   const handleSelectCustomer = () => {
     navigation.navigate('SelectCustomer', {
@@ -53,12 +92,67 @@ const NewOrderScreen = () => {
 
   const handleSelectProduct = () => {
     navigation.navigate('SelectProduct', {
-      onSelect: (products: SelectedProduct[], cartCode: string) => {
+      preselectedProducts: selectedProducts,
+      cartCode: reduxCartCode,
+      onSelect: (products: SelectedProduct[], code: string) => {
         setSelectedProducts(products);
-        setCartCode(cartCode);
+        setCartCode(code);
       },
     } as any);
   };
+
+  // const handleSelectProduct = async () => {
+
+  //   try {
+  //     if (reduxCartCode) {
+  //       // Fetch cart items if a cart code already exists
+  //       const cart = await cartService.getCartByCode(reduxCartCode);
+
+  //       if (cart?.products?.length) {
+  //         const mappedProducts: SelectedProduct[] = cart.products.map((item: ReadableShoppingCartItem) => ({
+  //           sku: item.sku,
+  //           quantity: item.quantity,
+  //           price: item.price ?? 0,
+  //           image: item.image?.path
+  //         }));
+
+  //         setSelectedProducts(mappedProducts);
+  //         setCartCode(reduxCartCode);
+
+  //         navigation.navigate('SelectProduct', {
+  //           preselectedProducts: mappedProducts, // pass to screen
+  //           cartCode: reduxCartCode,
+  //           onSelect: (products: SelectedProduct[], code: string) => {
+  //             setSelectedProducts(products);
+  //             setCartCode(code);
+  //           },
+  //         } as any);
+  //         return;
+  //       }
+  //     }
+
+  //     // If no cart code or empty cart
+  //     navigation.navigate('SelectProduct', {
+  //       preselectedProducts: [],
+  //       onSelect: (products: SelectedProduct[], code: string) => {
+  //         setSelectedProducts(products);
+  //         setCartCode(code);
+  //       },
+  //     } as any);
+
+  //   } catch (error) {
+  //     console.error('Error fetching cart items:', error);
+  //     // Fallback to empty selection
+  //     navigation.navigate('SelectProduct', {
+  //       preselectedProducts: [],
+  //       onSelect: (products: SelectedProduct[], code: string) => {
+  //         setSelectedProducts(products);
+  //         setCartCode(code);
+  //       },
+  //     } as any);
+  //   }
+
+  // };
 
   const handleCreateOrder = async () => {
     if (!selectedCustomer) {
@@ -102,10 +196,15 @@ const NewOrderScreen = () => {
       if (orderConfirmation) {
         alert(`Order created successfully! Order #: ${orderConfirmation.id}`);
         console.log("Order created successfully! Order #: ${orderConfirmation.id}");
+
         // Optionally, reset state or navigate
         setSelectedCustomer(null);
         setSelectedProducts([]);
         setCartCode('');
+
+        dispatch(clearCartCode());
+        clearCartCodeStorage()
+
         navigation.navigate('History'); // or any screen you want
       } else {
         alert('Failed to create order.');

@@ -1,13 +1,4 @@
 {
   "private": true,
-  "name": "my-monorepo",
-  "workspaces": [
-    "shared-models",
-    "web-app",
-    "mobile-app"
-  ],
-  "dependencies": {
-    "@stripe/stripe-js": "github:stripe/stripe-js",
-    "react-pro-sidebar": "^0.7.1"
-  }
+  "name": "my-monorepo"
 }
