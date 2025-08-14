@@ -1,7 +1,11 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AppDispatch } from './store';
-import { getCartCode, saveCartCode, clearCartCodeStorage } from '@/utils/cartStorage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AppDispatch } from "./store";
+import {
+  getCartCode,
+  saveCartCode,
+  clearCartCodeStorage,
+} from "@/utils/cartStorage";
 
 interface CartState {
   code: string | null;
@@ -12,7 +16,7 @@ const initialState: CartState = {
 };
 
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState,
   reducers: {
     setCartCode(state, action: PayloadAction<string>) {
@@ -33,7 +37,7 @@ export const loadCartCodeFromStorage = () => async (dispatch: AppDispatch) => {
       dispatch(setCartCode(code));
     }
   } catch (error) {
-    console.warn('[CartSlice] Failed to load cart code', error);
+    console.warn("[CartSlice] Failed to load cart code", error);
   }
 };
 

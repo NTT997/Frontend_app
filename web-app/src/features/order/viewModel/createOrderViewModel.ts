@@ -13,8 +13,11 @@ import {
   type Product,
 } from "@ui/shared-models";
 import { fetchStoreInfo } from "../../store/api/storeApi";
+import { useNavigate } from "react-router-dom";
 
 const useCreateOrderViewModel = () => {
+  //navigate
+  const navigate = useNavigate();
   //store
   const [store, setStore] = useState<Store | null>(null);
   const getStoreInfo = async () => {
@@ -131,7 +134,7 @@ const useCreateOrderViewModel = () => {
       payment: {
         amount: String(cartResponse.total),
         paymentModule: paymentData.paymentModule,
-        paymentToken: "tok_visa", //paymentData.paymentToken,
+        paymentToken: "tok_visa", //paymentData.token,,
         paymentType: "CREDITCARD",
         transactionType: "AUTHORIZECAPTURE",
       },
@@ -143,6 +146,7 @@ const useCreateOrderViewModel = () => {
       const res = await submitPayment(cartId, payload);
       console.log("Checkout thành công:", res);
       alert("Order Created Succesfully!");
+      navigate("/order");
     } catch (err) {
       console.error("Checkout thất bại:", err);
     }

@@ -85,6 +85,7 @@ const useCreateConfigViewModel = () => {
     if (id === 0) {
       await createSystemConfiguration(newConfig);
       alert("Create Configuration Successfully!");
+      navigate("/configuration");
     } else {
       await updateSystemConfiguration(newConfig);
       alert("Update Configuration Successfully!");

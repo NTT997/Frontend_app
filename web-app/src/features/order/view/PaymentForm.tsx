@@ -102,6 +102,9 @@ const PaymentForm = ({ onPaymentChange, store, getStore }) => {
   const [publishableKey] = useState(
     "pk_test_51RlmCSCNMdKsUXus3GW6O1Y6U3HJxu7N7mdNcFWq3AH7kiB4MFgOq7lBhcmIjfdDH8DuVZYXnUbW5sL3TFTD5K6E00YLwrCl8p"
   );
+  // const [publishableKey] = useState(
+  //   "pk_test_51RkgZEGaHSNGLbZKFJFli7Cx6FiGFsn2zJ3tQNspaovgnqWkvc4KSYEDcpGoDO8vWUEimvCK1RjniCaU7jJZ5GBT00tJjZR2dY"
+  // );
 
   // Dùng useMemo để tránh loadStripe lại mỗi lần render
   const stripePromise = useMemo(
