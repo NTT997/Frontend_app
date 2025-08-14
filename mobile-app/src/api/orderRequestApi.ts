@@ -1,22 +1,18 @@
 import axios from "axios";
-import { fetchUserById } from "../../../services/UserService";
-
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-const token = localStorage.getItem("token");
 
 export const fetchListOrderRequestByEmail = async (
   userId: string,
   status: string
 ) => {
   try {
-    const user = await fetchUserById(Number(userId));
+    // const user = await fetchUserById(Number(userId));
 
     const res = await axios.get(
-      `${BASE_URL}/private/ordering/orders/requests/approver`,
+      `http://localhost:8085/private/ordering/orders/requests/approver`,
       {
-        params: { email: user.emailAddress, status: status },
+        params: { email: "admin@shopizer.com", status: status },
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbjJAZ21haWwuY29tIiwiYXVkIjoiYXBpIiwicGVybWlzc2lvbiI6W3siYXV0aG9yaXR5IjoiUk9MRV9BVVRIIn0seyJhdXRob3JpdHkiOiJBVVRIIn0seyJhdXRob3JpdHkiOiJBRE1JTiJ9LHsiYXV0aG9yaXR5IjoiUFJPRFVDVFMifSx7ImF1dGhvcml0eSI6Ik9SREVSIn0seyJhdXRob3JpdHkiOiJDT05URU5UIn0seyJhdXRob3JpdHkiOiJTVE9SRSJ9LHsiYXV0aG9yaXR5IjoiVEFYIn0seyJhdXRob3JpdHkiOiJQQVlNRU5UIn0seyJhdXRob3JpdHkiOiJDVVNUT01FUiJ9LHsiYXV0aG9yaXR5IjoiU0hJUFBJTkcifV0sImV4cCI6MTc1NTI0MjQyOSwiaWF0IjoxNzU0NjM3NjI5fQ.lYtgqygZQMIaSfS21mPamSS7JUP7uuxujmhjXwCv8DLTa8PsLxXcNRCH7Xda8ID2oPb7dxhFPToN0dZOoQ4uog`,
           "Content-Type": "application/json",
         },
       }
