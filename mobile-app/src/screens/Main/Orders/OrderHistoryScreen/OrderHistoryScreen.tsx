@@ -10,21 +10,25 @@ import ChildLayout from "@/components/layout/ChildLayout";
 import { orderService } from "@/api/order.service";
 import { OrderList } from "@ui/shared-models";
 import dayjs from "dayjs";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const statusColors: Record<string, string> = {
   PROCESSING: "green",
   APPROVED: "green",
-  "ON HOLD": "red",
+  REJECTED: "red",
 };
 
 const HistoryScreen = () => {
   const [orders, setOrders] = useState<OrderList[]>([]);
   const [loading, setLoading] = useState(true);
+  const emailAdmin = useSelector((state: RootState) => state.userprofile.profile?.email);
 
   useEffect(() => {
     const fetchOrders = async () => {
       const service = new orderService();
-      const res = await service.getOrderList({ page: 0 });
+
+      const res = await service.getOrderList({ page: 0, emailAdmin: emailAdmin });
       setOrders(res.orders);
       setLoading(false);
     };
@@ -36,6 +40,14 @@ const HistoryScreen = () => {
     const day = date.format("DD");
     const month = date.format("MMM").toUpperCase();
     const year = date.format("YYYY");
+
+    const statusText = item.orderStatus?.toUpperCase() || "UNKNOWN";
+    const statusColor =
+      statusText === "PROCESSED" || statusText === "PROCESSING"
+        ? "green"
+        : statusText === "REJECTED"
+          ? "red"
+          : "gray";
 
     return (
       <View style={styles.card}>
@@ -55,23 +67,16 @@ const HistoryScreen = () => {
           <Text style={styles.email}>{item.billing?.email}</Text>
         </View>
 
-        {/* Total */}
-        <View style={styles.right}>
+        {/* Total & Status vertically */}
+        <View style={styles.rightSectionVertical}>
           <Text style={styles.totalLabel}>Total</Text>
           <Text style={styles.totalValue}>
-            ${Number(item.total?.value || 0).toFixed(2)}
+            ${Number(Math.round(item.total?.value || 0)).toLocaleString()}
           </Text>
-        </View>
-        <View style={styles.statusContainer}>
-          <Text
-            style={[
-              styles.status,
-              {
-                color: statusColors[item.orderStatus?.toUpperCase()] || "gray",
-              },
-            ]}
-          >
-            {item.orderStatus}
+
+          <Text style={styles.totalLabel}>Status</Text>
+          <Text style={[styles.status, { color: statusColor }]}>
+            {statusText}
           </Text>
         </View>
       </View>
@@ -82,13 +87,17 @@ const HistoryScreen = () => {
     <ChildLayout title="History">
       {loading ? (
         <ActivityIndicator size="large" style={{ marginTop: 20 }} />
-      ) : (
+      ) : orders?.length ? (
         <FlatList
           data={orders}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderOrder}
           contentContainerStyle={{ padding: 10 }}
         />
+      ) : (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <Text style={{ fontSize: 16, color: "#666" }}>No Data Found!</Text>
+        </View>
       )}
     </ChildLayout>
   );
@@ -120,7 +129,7 @@ const styles = StyleSheet.create({
   day: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#2e7d32",
+    color: "#0A3D91",
   },
   month: {
     fontSize: 12,
@@ -146,6 +155,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignSelf: "center",
   },
+  statusContainer: {
+    alignItems: "flex-end",
+    justifyContent: "center",
+  }, rightSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    minWidth: 100,
+  },
+  rightLabels: {
+    marginRight: 8,
+    alignItems: "flex-start",
+  },
+  rightValues: {
+    alignItems: "flex-end",
+  },
   totalLabel: {
     fontSize: 12,
     color: "#666",
@@ -156,10 +181,13 @@ const styles = StyleSheet.create({
   },
   status: {
     fontSize: 12,
+    fontWeight: "bold",
     marginTop: 4,
   },
-  statusContainer: {
+  rightSectionVertical: {
     alignItems: "flex-end",
     justifyContent: "center",
+    minWidth: 100,
+    marginLeft: 10,
   },
 });

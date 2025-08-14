@@ -1,0 +1,160 @@
+import { StyleSheet } from "react-native";
+
+export default StyleSheet.create({
+  container: { flex: 1, paddingHorizontal: 16 },
+  screenTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  filterRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 8,
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    backgroundColor: "#fff",
+  },
+  chipActive: { borderColor: "#333" },
+  chipText: { fontSize: 13, color: "#444" },
+  chipTextActive: { fontWeight: "700", color: "#111" },
+
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  centerList: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+
+  loadingText: { marginTop: 8, color: "#666" },
+  errorText: { color: "#c62828", textAlign: "center", marginBottom: 12 },
+  retryBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    backgroundColor: "#111",
+  },
+  retryText: { color: "#fff", fontWeight: "600" },
+
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 12,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: "#eee",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  code: { fontSize: 16, fontWeight: "700" },
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    overflow: "hidden",
+    fontSize: 12,
+    color: "#fff",
+  },
+  accepted: { backgroundColor: "#0A3D91" },
+  pending: { backgroundColor: "#f9a825" },
+  rejected: { backgroundColor: "#c62828" },
+  meta: { marginTop: 6, color: "#666" },
+
+  section: { marginTop: 10 },
+  sectionTitle: { fontWeight: "700", marginBottom: 6 },
+  approvalRow: {
+    paddingVertical: 6,
+    borderTopWidth: 1,
+    borderTopColor: "#f1f1f1",
+  },
+  approvalText: { fontSize: 13, fontWeight: "600" },
+  approvalSub: { fontSize: 12, color: "#666", marginTop: 2 },
+  emptyLine: { fontSize: 12, color: "#999" },
+  empty: { color: "#666" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    width: "100%",
+    maxHeight: "80%",
+  },
+  modalTitle: { fontSize: 16, fontWeight: "700", marginBottom: 12 },
+  modalButtons: { flexDirection: "row", justifyContent: "space-between", marginTop: 16 },
+  modalBtn: { flex: 1, paddingVertical: 12, borderRadius: 8, marginHorizontal: 4, alignItems: "center" },
+  modalBtnText: { color: "#fff", fontWeight: "600" },
+  modalClose: { marginTop: 12, alignItems: "center" },
+  approvalCard: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 12,
+    marginVertical: 6,
+    borderWidth: 1,
+    borderColor: "#eee",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+
+  approvalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+
+  approverName: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#111",
+  },
+
+  statusBadge: {
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    justifyContent: "center",
+  },
+
+  statusText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#fff",
+  },
+
+  orderInfo: { fontSize: 13, color: "#444", marginBottom: 2 },
+  approvalTime: { fontSize: 12, color: "#666", marginBottom: 2 },
+
+  notesContainer: { marginTop: 4, backgroundColor: "#f9f9f9", padding: 6, borderRadius: 6 },
+  notesLabel: { fontSize: 12, fontWeight: "600", color: "#555" },
+  notesText: { fontSize: 12, color: "#333", marginTop: 2 },
+});

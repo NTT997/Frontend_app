@@ -25,10 +25,10 @@ export const fetchListOrderWithParams = async (page: number, count: number) => {
   }
 };
 
-export const fetchListOrder = async (email: string) => {
+export const fetchListOrder = async (email: string, status: string) => {
   try {
     const res = await axios.get(
-      `${BASE_URL}/private/ordering/orders?emailAdmin=${email}`,
+      `${BASE_URL}/private/ordering/orders?emailAdmin=${email}&status=${status}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
