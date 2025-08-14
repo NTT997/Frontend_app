@@ -1,8 +1,10 @@
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
+import { Box, useTheme } from "@mui/material";
 
 import Header from "../../../components/Header";
-import { Box, useTheme } from "@mui/material";
+import StatusDisplay from "../../../components/StatusDisplay";
+
 import { tokens } from "../../../theme/theme";
 import useOrderViewModel from "../viewModel/orderViewModel";
 import { useEffect } from "react";
@@ -11,7 +13,7 @@ const Order: React.FC = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const { orders, setOrders, getListOrder } = useOrderViewModel();
+  const { orders, getListOrder } = useOrderViewModel();
 
   useEffect(() => {
     getListOrder();
@@ -94,10 +96,13 @@ const columns: GridColDef[] = [
     field: "orderStatus",
     headerName: "STATUS",
     flex: 1,
+    renderCell: (params) => {
+      return <StatusDisplay status={params.value} />;
+    },
   },
   {
-    field: "createdBy",
-    headerName: "Created By",
+    field: "username",
+    headerName: "CREATED BY",
     flex: 1,
   },
 ];

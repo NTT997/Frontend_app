@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   TextField,
   Checkbox,
   Table,
@@ -13,77 +12,145 @@ import {
   TableRow,
   TableCell,
   Typography,
-  Chip,
   useTheme,
+  IconButton,
+  Tooltip,
+  Paper,
 } from "@mui/material";
 
 import { tokens } from "../../../theme/theme";
+import RemoveShoppingCartIcon from "@mui/icons-material/RemoveShoppingCart";
 
 const ProductSelector = ({
-  products,
   setOpen,
   open,
-  getAllProduct,
   search,
   setSearch,
   filteredProducts,
   selectedProducts,
-  setSelectedProducts,
   toggleSelect,
+  removeItem,
+  onConfirm,
+  quantities,
+  setQuantities,
 }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
   return (
-    <Box>
-      {/* button for opening dialog */}
-      <Button variant="contained" onClick={() => setOpen(true)}>
-        Chọn sản phẩm
+    <Box mt={1} borderRadius={2} boxShadow={2}>
+      {/* Button mở dialog */}
+      <Button variant="contained" onClick={() => setOpen(true)} sx={{ m: 2 }}>
+        SELECT PRODUCT
       </Button>
 
+      {selectedProducts && (
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>PRODUCT ID</TableCell>
+              <TableCell>PRODUCT SKU</TableCell>
+              <TableCell>PRICE</TableCell>
+              <TableCell>QUANTITY</TableCell>
+              <TableCell>TOTAL</TableCell>
+              <TableCell>ACTION</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {selectedProducts.map((p) => (
+              <TableRow>
+                <TableCell>{p.id}</TableCell>
+                <TableCell>{p.sku}</TableCell>
+                <TableCell>{p.price}</TableCell>
+                <TableCell>
+                  <TextField
+                    type="number"
+                    size="small"
+                    value={quantities[p.id] || 1}
+                    onChange={(e) => {
+                      let newQty = parseInt(e.target.value) || 0;
+                      if (newQty > p.quantity) {
+                        alert(`Không đủ tồn kho: ${p.quantity}`);
+                        newQty = p.quantity;
+                      }
+                      if (newQty < 1) newQty = 1;
+                      setQuantities((prev) => ({
+                        ...prev,
+                        [p.id]: newQty,
+                      }));
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  {Number(p.price) * Number(quantities[p.id] || 1)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+
       {/* Dialog */}
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth>
-        <DialogTitle>Choose Products</DialogTitle>
-        <DialogContent>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>
+          <Typography variant="h3" fontWeight="bold">
+            Choose Products
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ minHeight: 400 }}>
+          {/* Search input */}
           <TextField
             label="Search products here..."
             fullWidth
             margin="normal"
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-            }}
+            onChange={(e) => setSearch(e.target.value)}
           />
-          <Table size="small">
+
+          {/* Product list table */}
+          <Table size="small" sx={{ mb: 3 }}>
             <TableHead>
               <TableRow>
+                <TableCell padding="checkbox"></TableCell>
                 <TableCell>Id</TableCell>
                 <TableCell>Sku</TableCell>
                 <TableCell>Price</TableCell>
+                <TableCell>Quantity</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {/* Case have filteredProducts */}
-              {filteredProducts.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>{product.id}</TableCell>
-                  <TableCell>{product.sku}</TableCell>
-                  <TableCell>{product.finalPrice}</TableCell>
-                  <TableCell>
-                    <Checkbox
-                      checked={
-                        !!selectedProducts.find((p) => p.id === product.id)
-                      }
-                      onSelect={() => toggleSelect(product)}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-
-              {/* Case no filteredProducts */}
-              {filteredProducts.length === 0 && (
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
+                  <TableRow
+                    key={product.id}
+                    hover
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => toggleSelect(product)}
+                  >
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedProducts.some(
+                          (p) => p.id === product.id
+                        )}
+                        onChange={() => toggleSelect(product)}
+                        onClick={(e) => e.stopPropagation()}
+                        color="primary"
+                      />
+                    </TableCell>
+                    <TableCell>{product.id}</TableCell>
+                    <TableCell>{product.sku}</TableCell>
+                    <TableCell>{product.finalPrice}</TableCell>
+                    <TableCell>{product.quantity}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
-                  <TableCell colSpan={3} align="center">
+                  <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                     None Product Match!
                   </TableCell>
                 </TableRow>
@@ -91,34 +158,62 @@ const ProductSelector = ({
             </TableBody>
           </Table>
 
-          {/* Danh sách sản phẩm đã chọn */}
-          <Box mb={2}>
-            <Typography variant="subtitle1" mb={1}>
-              Sản phẩm đã chọn:
+          {/* Selected products */}
+          <Typography variant="h6" gutterBottom>
+            Selected Products
+          </Typography>
+          {selectedProducts.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              No products selected yet.
             </Typography>
-            {selectedProducts.length === 0 && (
-              <Typography variant="body2" color="text.secondary">
-                List Products chose will be displayed here!
-              </Typography>
-            )}
-            <Box display="flex" gap={1} flexWrap="wrap">
-              {selectedProducts.map((product) => (
-                <Chip
-                  key={product.id}
-                  label={product.sku}
-                  onDelete={() => removeSelected(product)}
-                />
-              ))}
-            </Box>
-          </Box>
+          ) : (
+            <Paper
+              variant="outlined"
+              sx={{ maxHeight: 200, overflowY: "auto" }}
+            >
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Id</TableCell>
+                    <TableCell>Sku</TableCell>
+                    <TableCell>Price</TableCell>
+                    <TableCell align="center">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {selectedProducts.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell>{product.id}</TableCell>
+                      <TableCell>{product.sku}</TableCell>
+                      <TableCell>{product.finalPrice}</TableCell>
+                      <TableCell align="center">
+                        <Tooltip title="Remove product">
+                          <IconButton
+                            onClick={() => removeItem(product)}
+                            size="small"
+                            sx={{ color: colors.redAccent[500] }}
+                          >
+                            <RemoveShoppingCartIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Paper>
+          )}
 
-          <Button
-            variant="contained"
-            disabled={selectedProducts.length === 0}
-            // onClick={handleOk}
-          >
-            CONFIRM
-          </Button>
+          {/* Confirm button */}
+          <Box mt={3} textAlign="right">
+            <Button
+              variant="contained"
+              disabled={selectedProducts.length === 0}
+              onClick={onConfirm}
+            >
+              CONFIRM
+            </Button>
+          </Box>
         </DialogContent>
       </Dialog>
     </Box>

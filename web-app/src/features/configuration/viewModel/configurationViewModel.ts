@@ -4,9 +4,12 @@ import {
   deleteSystemConfiguration,
 } from "../api/ConfigurationApi";
 import { useNavigate } from "react-router-dom";
+import type { SystemConfiguration } from "@ui/shared-models";
 
 const useConfigurationViewModel = () => {
-  const [configurations, setConfigurations] = useState<Configuration[]>([]);
+  const [configurations, setConfigurations] = useState<SystemConfiguration[]>(
+    []
+  );
   const [listApprovers, setListApprovers] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
 
@@ -23,7 +26,9 @@ const useConfigurationViewModel = () => {
   const handleDeleteSystemConfiguration = async (id: string) => {
     try {
       await deleteSystemConfiguration(id);
-      setConfigurations((prev) => prev.filter((item) => item.id !== id));
+      setConfigurations((prev) =>
+        prev.filter((item) => item.id !== Number(id))
+      );
       alert(`Delete System Configuration with id ${id} successfully!`);
     } catch (error) {
       console.error("Delete Failed", error);
@@ -44,13 +49,3 @@ const useConfigurationViewModel = () => {
 };
 
 export default useConfigurationViewModel;
-
-type Configuration = {
-  id: string;
-  key: string;
-  value: string;
-  totalApprovers: number;
-  min: number;
-  max: number;
-  approvers: any[];
-};

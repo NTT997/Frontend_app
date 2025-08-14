@@ -1,16 +1,22 @@
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
+
 import CustomerForm from "../components/ListCustomer";
 import ProductSelector from "../components/ProductSelector";
+import PaymentForm from "../view/PaymentForm";
+import ErrorPopup from "../../../components/ErrorPopup";
+
 import useCreateOrderViewModel from "../viewModel/createOrderViewModel";
+
 import { useEffect } from "react";
 
 const CreateOrder = () => {
   const {
-    //customer
+    // customer:
+    //selectedCustomer,
+    setSelectedCustomer,
     customers,
     getAllCustomer,
     //products[]
-    products,
     setOpen,
     open,
     getAllProduct,
@@ -18,8 +24,23 @@ const CreateOrder = () => {
     setSearch,
     filteredProducts,
     selectedProducts,
-    setSelectedProducts,
     toggleSelect,
+    removeItem,
+    handleConfirm,
+    quantities,
+    setQuantities,
+    //payment
+    // paymentData,
+    setPaymentData,
+    //submitPayment, //goi trong handle checkout
+    handleCheckout,
+    //error
+    openError,
+    setOpenError,
+    error,
+    //store
+    store,
+    getStoreInfo,
   } = useCreateOrderViewModel();
 
   useEffect(() => {
@@ -27,25 +48,47 @@ const CreateOrder = () => {
     getAllProduct();
   }, []);
 
-  useEffect(() => {
-    console.log("products updated:", products);
-  }, [products]);
-
   return (
     <Box m={2} gap={2}>
-      <CustomerForm customers={customers} getAllCustomer={getAllCustomer} />
+      <CustomerForm
+        customers={customers}
+        getAllCustomer={getAllCustomer}
+        onCustomerSelect={setSelectedCustomer}
+      />
       <ProductSelector
-        products={products}
         setOpen={setOpen}
         open={open}
-        getAllProduct={getAllProduct}
         search={search}
         setSearch={setSearch}
         filteredProducts={filteredProducts}
         selectedProducts={selectedProducts}
-        setSelectedProducts={setSelectedProducts}
         toggleSelect={toggleSelect}
+        removeItem={removeItem}
+        onConfirm={handleConfirm}
+        quantities={quantities}
+        setQuantities={setQuantities}
       />
+      <PaymentForm
+        onPaymentChange={setPaymentData}
+        store={store}
+        getStore={getStoreInfo}
+      />
+
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mt: 2 }}
+        onClick={handleCheckout}
+      >
+        CONFIRM ORDER
+      </Button>
+      {error !== "" && (
+        <ErrorPopup
+          onClose={() => setOpenError(false)}
+          open={openError}
+          errorMessage={error}
+        />
+      )}
     </Box>
   );
 };

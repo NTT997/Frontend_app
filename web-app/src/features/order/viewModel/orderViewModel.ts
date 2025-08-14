@@ -13,7 +13,6 @@ const useOrderViewModel = () => {
 
   return {
     orders,
-    setOrders,
     getListOrder,
   };
 };

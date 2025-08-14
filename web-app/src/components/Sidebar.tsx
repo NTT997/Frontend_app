@@ -5,20 +5,23 @@ import {
   MenuItem,
   SubMenu as SubMenuRaw,
 } from "react-pro-sidebar";
+import { Link } from "react-router-dom";
 
 import "react-pro-sidebar/dist/css/styles.css";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
-
-import { Link } from "react-router-dom";
+//custom theme
 import { tokens } from "../theme/theme";
-
+//icon
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import ReceiptIcon from "@mui/icons-material/ReceiptOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-
-import userImage from "../assets/react.svg";
+//logo asset
+import BTMLogo from "../assets/btm_logo.png";
+//redux
+import type { RootState } from "../store/store";
+import { useSelector } from "react-redux";
 
 import { fetchUserById } from "../services/UserService";
 
@@ -92,20 +95,24 @@ const Item: React.FC<ItemProps> = ({
 };
 
 const Sidebar = () => {
-  //dirty code
-  const [user, setUser] = useState<User | null>(null);
+  const userId = useSelector((state: RootState) => state.user.userId);
+  const [user, setUser] = useState(null);
+
+  const getUserById = async () => {
+    if (userId != null) {
+      const userData = await fetchUserById(userId);
+      console.log(userData);
+
+      if (userData) {
+        console.log(userData);
+        setUser(userData);
+      }
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const id = Number(localStorage.getItem("id"));
-      if (!isNaN(id)) {
-        const data = await fetchUserById(id);
-        setUser(data);
-      }
-    };
-
-    fetchData();
-  }, []);
+    getUserById();
+  }, [userId]);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -151,8 +158,12 @@ const Sidebar = () => {
                 alignItems="center"
                 ml="15px"
               >
-                <Typography variant="h3" color={colors.grey[100]}>
-                  Interior
+                <Typography
+                  variant="h3"
+                  fontWeight={"bold"}
+                  color={colors.grey[100]}
+                >
+                  Interior ERP
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -166,14 +177,13 @@ const Sidebar = () => {
             <Box mb="25px">
               <Box display="flex" justifyContent="center" alignItems="center">
                 <img
-                  alt="profile-user"
-                  width="100px"
-                  height="100px"
-                  src={userImage}
-                  style={{ cursor: "pointer", borderRadius: "50%" }}
+                  alt="BTM Global logo"
+                  height="80px"
+                  src={BTMLogo}
+                  style={{ cursor: "pointer" }}
                 />
               </Box>
-              <Box textAlign="center">
+              {/* <Box textAlign="center">
                 <Typography
                   variant="h2"
                   color={colors.grey[100]}
@@ -187,7 +197,7 @@ const Sidebar = () => {
                 <Typography variant="h5" color={colors.greenAccent[500]}>
                   ADMIN RETAILER
                 </Typography>
-              </Box>
+              </Box> */}
             </Box>
           )}
 

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { AuthService } from '@/api/auth.service';
+import { ReadableUser } from '@ui/shared-models';
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -7,6 +8,8 @@ interface AuthState {
   token: string | null;
   error: string | null;
   userId?: number;
+  hasShownGreeting?: boolean; // Optional field to track greeting state
+  profile: ReadableUser | null;
 }
 
 const initialState: AuthState = {
@@ -15,6 +18,8 @@ const initialState: AuthState = {
   token: null,
   error: null,
   userId: undefined,
+  hasShownGreeting: false, // Initialize greeting state
+  profile: null
 };
 
 // Async thunk for login
@@ -23,7 +28,7 @@ export const loginAsync = createAsyncThunk<
   { username: string; password: string },
   { rejectValue: string }
 >(
-  'auth/login',
+  'user/login',
   async (credentials, { rejectWithValue }) => {
     try {
       const authService = new AuthService();
@@ -43,6 +48,24 @@ export const loginAsync = createAsyncThunk<
   }
 );
 
+export const fetchUserProfile = createAsyncThunk<
+  ReadableUser,
+  number,
+  { rejectValue: string }
+>(
+  'auth/fetchUserProfile',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const authService = new AuthService();
+      const profile = await authService.findById(userId);
+      if (!profile) return rejectWithValue('User profile not found');
+      return profile;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to fetch user profile');
+    }
+  }
+);
+
 // Async thunk for logout
 export const logoutAsync = createAsyncThunk('auth/logout', async () => {
   const authService = new AuthService();
@@ -53,19 +76,32 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // Optional: local logout action if needed
     resetError(state) {
       state.error = null;
+    },
+    setHasShownGreeting(state, action: PayloadAction<boolean>) {
+      state.hasShownGreeting = action.payload;
+    },
+    resetAuth(state) {
+      state.isLoggedIn = false;
+      state.token = null;
+      state.userId = undefined;
+      state.hasShownGreeting = false;
+      state.error = null;
+      state.loading = false;
+      state.profile = null;
+    },
+    clearUserProfile(state) {
+      state.profile = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Login pending
+      // Login
       .addCase(loginAsync.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      // Login fulfilled
       .addCase(
         loginAsync.fulfilled,
         (state, action: PayloadAction<{ token: string; userId: number }>) => {
@@ -76,25 +112,45 @@ const authSlice = createSlice({
           state.error = null;
         }
       )
-      // Login rejected
       .addCase(loginAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? 'Login failed';
         state.isLoggedIn = false;
         state.token = null;
         state.userId = undefined;
+        state.profile = null;
       })
-      // Logout fulfilled
+
+      // Fetch user profile
+      .addCase(fetchUserProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchUserProfile.fulfilled,
+        (state, action: PayloadAction<ReadableUser>) => {
+          state.loading = false;
+          state.profile = action.payload;
+          state.error = null;
+        }
+      )
+      .addCase(fetchUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? 'Failed to load user profile';
+        state.profile = null;
+      })
+
+      // Logout
       .addCase(logoutAsync.fulfilled, (state) => {
         state.isLoggedIn = false;
         state.token = null;
         state.userId = undefined;
         state.error = null;
         state.loading = false;
+        state.profile = null;
       });
   },
 });
-
-export const { resetError } = authSlice.actions;
-
+export const { setHasShownGreeting, resetAuth, resetError, clearUserProfile } =
+  authSlice.actions;
 export default authSlice.reducer;

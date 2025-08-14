@@ -2,7 +2,7 @@ import { Autocomplete, TextField, Typography, Box, Paper } from "@mui/material";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
-const CustomerForm = ({ customers, getAllCustomer }) => {
+const CustomerForm = ({ customers, getAllCustomer, onCustomerSelect }) => {
   const initialValues = {
     customer: null,
     delivery: null,
@@ -40,6 +40,7 @@ const CustomerForm = ({ customers, getAllCustomer }) => {
                   onChange={(_, newValue) => {
                     setFieldValue("customer", newValue);
                     setFieldValue("delivery", newValue?.delivery || {});
+                    onCustomerSelect?.(newValue);
                   }}
                   renderInput={(params) => (
                     <TextField

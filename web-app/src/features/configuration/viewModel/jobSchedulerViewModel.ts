@@ -1,44 +1,41 @@
 import { useState } from "react";
 import {
-  fetchListSystemConfiguration,
-  deleteSystemConfiguration,
   fetchListSchedulerConfiguration,
+  updateEnabledStatusOnlyAPI,
+  updateSchedulerAPI,
 } from "../api/ConfigurationApi";
-import { useNavigate } from "react-router-dom";
+
 
 const useJobScheduleViewModel = () => {
   const [configurations, setConfigurations] = useState<JobConfiguration[]>([]);
-  const [listApprovers, setListApprovers] = useState([]);
-  const [showDialog, setShowDialog] = useState(false);
-
+  
   const getListSystemConfiguration = async () => {
     const data = await fetchListSchedulerConfiguration();
+    console.log(data);
+ 
     setConfigurations(data);
   };
 
-  const navigate = useNavigate();
-//   const handleUpdateConfiguration = async (idParams: string) => {
-//     navigate(`/configuration/create-configuration/${idParams}`);
-//   };
-
-//   const handleDeleteSystemConfiguration = async (id: string) => {
-//     try {
-//       await deleteSystemConfiguration(id);
-//       setConfigurations((prev) => prev.filter((item) => item.id !== id));
-//       alert(`Delete System Configuration with id ${id} successfully!`);
-//     } catch (error) {
-//       console.error("Delete Failed", error);
-//     }
-//   };
-
+  const updateEnabledStatusOnly = async (jobname:string,status:boolean) => {
+    try {
+      await updateEnabledStatusOnlyAPI(jobname, status);      
+    } catch (error) {
+      console.error("update status Failed", error);
+    }
+  };
+  const updateScheduler = async (jobname:string,cronExpression:string,status:boolean) => {
+    try {
+      await updateScheduler(jobname,cronExpression, status);      
+    } catch (error) {
+      console.error("update status Failed", error);
+    }
+  };
   return {
     configurations,
     setConfigurations,
     getListSystemConfiguration,
-    listApprovers,
-    setListApprovers,
-    showDialog,
-    setShowDialog,
+    updateEnabledStatusOnly,
+    updateSchedulerAPI
   };
 };
 
