@@ -63,18 +63,18 @@ const columns: GridColDef[] = [
     headerName: "ORDER ID",
     flex: 1,
   },
-  {
-    field: "totalItem",
-    headerName: "PURCHASED",
-    renderCell: (params) => (
-      <span
-        style={{ color: "blue", cursor: "pointer" }}
-        onClick={() => console.log("View items of order:", params.row.id)}
-      >
-        {params.row.products?.length ?? 0}
-      </span>
-    ),
-  },
+  // {
+  //   field: "totalItem",
+  //   headerName: "PURCHASED",
+  //   renderCell: (params) => (
+  //     <span
+  //       style={{ color: "blue", cursor: "pointer" }}
+  //       onClick={() => console.log("View items of order:", params.row.id)}
+  //     >
+  //       {params.row.products?.length ?? 0}
+  //     </span>
+  //   ),
+  // },
   {
     field: "datePurchased",
     headerName: "DATE",
