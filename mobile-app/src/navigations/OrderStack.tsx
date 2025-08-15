@@ -22,7 +22,7 @@ const OrdersStack = () => {
     return (
         <Stack.Navigator
             screenOptions={{
-                headerShown: false, // ✅ turn off default header for ALL screens
+                headerShown: false,
             }}
         >
             <Stack.Screen name="OrdersMain" component={OrdersScreen} />

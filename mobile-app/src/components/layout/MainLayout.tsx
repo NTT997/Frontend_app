@@ -15,7 +15,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <View style={styles.header}>
                 <Header />
             </View>
-            
+
             {/* Children content area (if any) */}
             <View style={styles.content}>
                 {children}
@@ -77,10 +77,7 @@ const styles = StyleSheet.create({
     rightIcons: {
         flexDirection: 'row',
     },
-    content: {
-        flex: 0.45,
-        backgroundColor: '#fff',
-    },
+    content: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 16, paddingTop: 12 },
     navBar: {
         height: 70,
         flexDirection: 'row',

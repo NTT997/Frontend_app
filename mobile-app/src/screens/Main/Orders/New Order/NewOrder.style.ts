@@ -36,6 +36,7 @@ export default StyleSheet.create({
         fontSize: 16,
         fontWeight: '500',
         color: '#333',
+        marginBottom: 8, // spacing for top-left title
     },
     customerCard: {
         backgroundColor: '#fff',
@@ -124,17 +125,26 @@ export default StyleSheet.create({
         marginVertical: 12,
         alignSelf: 'center',
         justifyContent: 'center',
-        flexDirection: 'row',          // horizontal layout for content + chevron
+        flexDirection: 'row', // default horizontal layout
         alignItems: 'center',
         paddingHorizontal: 16,
         position: 'relative',
+    },
+
+    // ========================
+    // NEW: vertical stack for payment method card
+    paymentCard: {
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        height: undefined,
+        paddingVertical: 16,
     },
 
     createOrderButton: {
         position: 'absolute',
         bottom: 16,
         left: '50%',
-        transform: [{ translateX: -0.5 * width * 0.8 }], // center button horizontally
+        transform: [{ translateX: -0.5 * width * 0.8 }],
         width: width * 0.8,
         backgroundColor: '#0A3D91',
         paddingVertical: 14,
@@ -165,12 +175,11 @@ export default StyleSheet.create({
         padding: 8,
         justifyContent: 'center',
         alignItems: 'center',
-        // fix width for chevron to keep it at right edge
         width: 40,
     },
 
     productListScroll: {
-        maxHeight: 140,  // increased height to fit ~3 items comfortably
+        maxHeight: 140,
         width: '100%',
         marginTop: 8,
     },
@@ -191,6 +200,68 @@ export default StyleSheet.create({
     productPrice: {
         fontWeight: '600',
         color: '#333',
+        fontSize: 16,
+    },
+
+    radioRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 6,
+    },
+    radioOuter: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: '#0A3D91',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 8,
+    },
+    radioInner: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        backgroundColor: '#0A3D91',
+    },
+    radioLabel: {
+        fontSize: 16,
+    },
+    radioGroupVertical: {
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+    },
+
+    // ========================
+    // Stripe Modal Adjustments
+    stripeModalOverlay: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    stripeModalContent: {
+        width: '90%',
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 12,
+        flexDirection: 'column', // NEW: stack vertically
+        alignItems: 'stretch',   // stretch children to full width
+    },
+    modalButton: {
+        marginTop: 16,
+        backgroundColor: '#0A3D91',
+        paddingVertical: 12,
+        borderRadius: 8,
+    },
+    modalButtonText: {
+        color: 'white',
+        textAlign: 'center',
+        fontWeight: 'bold',
         fontSize: 16,
     },
 });

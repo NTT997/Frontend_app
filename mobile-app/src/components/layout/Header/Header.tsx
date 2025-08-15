@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SideMenuModal from '../../common/sideMenu';
+import { Platform } from 'react-native';
 
 const Header = () => {
     const insets = useSafeAreaInsets();
@@ -10,9 +11,9 @@ const Header = () => {
 
     const openMenu = () => setMenuVisible(true);
     const closeMenu = () => setMenuVisible(false);
-
+    const extraPaddingTop = Platform.OS === 'ios' ? 10 : 0;
     return (
-        <View style={[styles.header, { paddingTop: insets.top }]}>
+        <View style={[styles.header, { paddingTop: insets.top + extraPaddingTop }]}>
             <View style={styles.headerRow}>
                 <TouchableOpacity
                     style={styles.iconButton}
@@ -44,9 +45,9 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 40,
         borderBottomRightRadius: 40,
         paddingHorizontal: 16,
-        paddingBottom: 16,   // space under the row
-        minHeight: 90,       // ensures consistent height on iOS/Android
-        justifyContent: 'center',
+        paddingBottom: 16,
+        minHeight: 100,
+        justifyContent: 'flex-end',  // aligns row lower for notch
     },
     headerRow: {
         flexDirection: 'row',
