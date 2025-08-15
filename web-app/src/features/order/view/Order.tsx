@@ -20,8 +20,14 @@ const Order: React.FC = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const { orders, getListOrder, statusFilter, setStatusFilter } =
-    useOrderViewModel();
+  const {
+    //list orders
+    orders,
+    getListOrder,
+    //filter status
+    statusFilter,
+    setStatusFilter,
+  } = useOrderViewModel();
 
   useEffect(() => {
     getListOrder(statusFilter);
@@ -54,11 +60,10 @@ const Order: React.FC = () => {
             color: colors.grey[100],
           }}
         >
-          <MenuItem value="ALL">ALL</MenuItem>
+          <MenuItem value="">ALL</MenuItem>
           <MenuItem value="APPROVED">APPROVED</MenuItem>
           <MenuItem value="PROCESSING">PROCESSING</MenuItem>
           <MenuItem value="PROCESSED">PROCESSED</MenuItem>
-          <MenuItem value="REJECTED">REJECTED</MenuItem>
         </Select>
       </FormControl>
 
@@ -121,11 +126,6 @@ const columns: GridColDef[] = [
     renderCell: (params) => {
       return <StatusDisplay status={params.value} />;
     },
-  },
-  {
-    field: "username",
-    headerName: "CREATED BY",
-    flex: 1,
   },
 ];
 

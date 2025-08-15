@@ -1,9 +1,10 @@
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 import axios from "axios";
-const token = localStorage.getItem("token");
 
 export const fetchUserLogin = async (userId: number) => {
+  const token = localStorage.getItem("token");
+
   try {
     const response = await axios.get(
       `${BASE_URL}/private/user-service/users/${userId}`,
@@ -45,6 +46,8 @@ export const fetchUserById = async (userId: number) => {
 };
 
 export const fetchListUser = async () => {
+  const token = localStorage.getItem("token");
+
   try {
     const response = await axios.get(`${BASE_URL}/private/user-service/users`, {
       headers: {

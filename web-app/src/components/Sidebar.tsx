@@ -219,9 +219,10 @@ const Sidebar = () => {
               setSelected={setSelected}
               hasSubMenu
               subItems={[
-                { title: "All Order", to: "/order" },
+                { title: "List Order", to: "/order" },
                 { title: "Create Order", to: "/order/create-order" },
                 { title: "Order Request", to: "/order/order-requests" },
+                { title: "Rejected Orders", to: "/order/rejected-order" },
               ]}
             />
 

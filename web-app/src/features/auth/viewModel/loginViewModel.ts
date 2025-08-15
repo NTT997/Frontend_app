@@ -10,8 +10,22 @@ import { fetchUserById } from "../../../services/UserService";
 const useLoginViewModel = () => {
   const navigate = useNavigate();
 
+  //login
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  //logout
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  //err
   const [error, setError] = useState("");
 
   //redux
@@ -48,14 +62,29 @@ const useLoginViewModel = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("id");
+    navigate("/");
+  };
+
   return {
+    //login
     username,
     setUsername,
     password,
     setPassword,
+    //error
     error,
     setError,
+    //handle
     handleLogin,
+    handleLogout,
+    //logout
+    anchorEl,
+    open,
+    handleClick,
+    handleClose,
   };
 };
 

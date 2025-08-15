@@ -47,3 +47,5 @@ export * from "./models/Order/Payment";
 export * from "./models/Order/OrderRequest";
 export * from "./models/Store";
 export * from "./models/Order/OrderStatus";
+export * from "./models/Order/ReadableOrderV2";
+export * from "./models/Order/ResubmitOrder";

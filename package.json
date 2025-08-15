@@ -1,4 +1,7 @@
 {
   "private": true,
-  "name": "my-monorepo"
+  "name": "my-monorepo",
+  "dependencies": {
+    "react-hook-form": "^7.62.0"
+  }
 }

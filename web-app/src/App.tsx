@@ -17,6 +17,7 @@ import Customer from "./features/customer/view/Customer";
 import Order from "./features/order/view/Order";
 import OrderRequests from "./features/order/view/OrderRequest";
 import CreateOrder from "./features/order/view/CreateOrder";
+import RejectedOrders from "./features/order/view/OrderRejeted";
 
 import Configuration from "./features/configuration/view/Configuration";
 import CreateConfiguration from "./features/configuration/view/CreateConfiguration";
@@ -41,6 +42,7 @@ function AppContent() {
             <Route index element={<Order />} />
             <Route path="order-requests" element={<OrderRequests />} />{" "}
             <Route path="create-order" element={<CreateOrder />} />{" "}
+            <Route path="rejected-order" element={<RejectedOrders />} />{" "}
           </Route>
 
           <Route path="/customer" element={<Customer />} />
@@ -50,10 +52,7 @@ function AppContent() {
               path="create-configuration/:idParams?"
               element={<CreateConfiguration />}
             />
-            <Route
-              path="scheduler"
-              element={<JobSchedulerConfiguration />}
-            />
+            <Route path="scheduler" element={<JobSchedulerConfiguration />} />
           </Route>
           <Route path="*" element={<div>404 - Not Found</div>} />
         </Routes>

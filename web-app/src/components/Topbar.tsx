@@ -2,18 +2,26 @@ import { useContext } from "react";
 
 import { ColorModeContext, tokens } from "../theme/theme";
 
-import { Box, IconButton, useTheme } from "@mui/material";
+import { Box, IconButton, Menu, Typography, useTheme } from "@mui/material";
 import InputBase from "@mui/material/InputBase";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import SearchIcon from "@mui/icons-material/Search";
+import LogoutIcon from "@mui/icons-material/Logout";
+
+import { MenuItem } from "react-pro-sidebar";
+import useLoginViewModel from "../features/auth/viewModel/loginViewModel";
 
 const Topbar: React.FC = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
+
+  //logout
+  const { handleLogout, anchorEl, handleClick, handleClose, open } =
+    useLoginViewModel();
 
   return (
     <Box display="flex" justifyContent="space-between" p={2}>
@@ -39,9 +47,25 @@ const Topbar: React.FC = () => {
           )}
         </IconButton>
 
-        <IconButton>
+        <IconButton onClick={handleClick}>
           <PersonOutlinedIcon />
         </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem onClick={handleLogout}>
+            <IconButton
+              sx={{ display: "flex", flexDirection: "row", gap: "4px" }}
+            >
+              <LogoutIcon />
+              <Typography>Log out</Typography>
+            </IconButton>
+          </MenuItem>
+        </Menu>
       </Box>
     </Box>
   );

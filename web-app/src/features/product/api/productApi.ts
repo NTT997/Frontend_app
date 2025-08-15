@@ -1,6 +1,5 @@
 import axios from "axios";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-const token = localStorage.getItem("token");
 
 export const fetchListProductWithParams = async (
   page: number,
@@ -15,7 +14,6 @@ export const fetchListProductWithParams = async (
         },
       }
     );
-    console.log(res.data);
     return res.data.products;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
@@ -26,8 +24,6 @@ export const fetchListProductWithParams = async (
 };
 
 export const fetchListProduct = async () => {
-  console.log(token);
-
   try {
     const res = await axios.get(`${BASE_URL}/public/v2/products`, {
       headers: {
