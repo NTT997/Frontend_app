@@ -1,11 +1,9 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {  createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DashboardScreen from '../screens/Main/Dashboard/Dashboard';
 import { Feather } from '@expo/vector-icons';
-import OrdersScreen from '../screens/Main/Orders/OrdersScreen';
-import InventoryScreen from '../screens/Main/Inventory/Inventory';
-import ReportScreen from '../screens/Main/Report/Report';
 import OrdersStack from './OrderStack';
+import { Alert } from 'react-native';
 
 export type MainStackParamList = {
   Dashboard: undefined;
@@ -16,7 +14,18 @@ export type MainStackParamList = {
 
 const Tab = createBottomTabNavigator<MainStackParamList>();
 
+// Helper to show alert and prevent navigation
+const devTabListener = (screenName: string) => ({
+  tabPress: (e: any) => {
+    e.preventDefault(); // prevent navigation
+    Alert.alert('Coming Soon', `${screenName} screen is under development.`, [
+      { text: 'OK' },
+    ]);
+  },
+});
+
 const MainStack = () => {
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -32,10 +41,10 @@ const MainStack = () => {
               iconName = 'clipboard';
               break;
             case 'Inventory':
-              iconName = 'box'; // Feather icon for inventory (box)
+              iconName = 'box'; 
               break;
             case 'Report':
-              iconName = 'bar-chart-2'; // Feather icon for reports
+              iconName = 'bar-chart-2'; 
               break;
           }
 
@@ -44,9 +53,10 @@ const MainStack = () => {
         tabBarActiveTintColor: '#0A3D91',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          height: 60,
-          paddingBottom: 0,
-          paddingTop: 8,
+          height: 80,
+          paddingBottom: 20,
+          paddingTop: 10,
+          backgroundColor: '#fff',
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -55,9 +65,18 @@ const MainStack = () => {
       })}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
-      <Tab.Screen name="Orders" component={OrdersStack} options={{ headerShown: false }}/>      
-      <Tab.Screen name="Inventory" component={InventoryScreen} />
-      <Tab.Screen name="Report" component={ReportScreen} />
+      <Tab.Screen name="Orders" component={OrdersStack} options={{ headerShown: false }} />
+      {/* In-development tabs: render DevScreen modal */}
+      <Tab.Screen
+        name="Inventory"
+        component={DashboardScreen} // we still need a component, but user won’t see it
+        listeners={devTabListener('Inventory')}
+      />
+      <Tab.Screen
+        name="Report"
+        component={DashboardScreen}
+        listeners={devTabListener('Report')}
+      />
     </Tab.Navigator>
   );
 };

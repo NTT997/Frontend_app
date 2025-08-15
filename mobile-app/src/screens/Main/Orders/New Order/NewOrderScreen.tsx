@@ -1,28 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-  Pressable,
-  Dimensions,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, Pressable, Dimensions, } from 'react-native';
 import ChildLayout from '@/components/layout/ChildLayout';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { OrdersStackParamList } from '@/navigations/OrderStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import styles from './NewOrder.style';
-import { PersistableOrder, ReadableShoppingCartItem } from '@ui/shared-models';
+import { Payment, PAYMENT_METHODS, PaymentMethodKey, PersistableOrder, ReadableShoppingCartItem } from '@ui/shared-models';
 import { orderService } from '@/api/order.service';
 import { CartService } from '@/api/cart.service';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
 import { clearCartCode } from '@/redux/cartSlice';
-import { clearCartCodeStorage, getCartCode } from '@/utils/cartStorage';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constant from '@/utils/constant';
+import { clearCartCodeStorage } from '@/utils/cartStorage';
+import { CardField, useStripe } from '@stripe/stripe-react-native';
+import type { CardFieldInput } from '@stripe/stripe-react-native';
 
 type NavProps = NativeStackNavigationProp<OrdersStackParamList, 'NewOrder'>;
 
@@ -40,8 +32,6 @@ type SelectedCustomer = {
   gender?: string;
 };
 
-const { width } = Dimensions.get('window');
-
 const NewOrderScreen = () => {
   const navigation = useNavigation<NavProps>();
 
@@ -51,6 +41,13 @@ const NewOrderScreen = () => {
   const reduxCartCode = useSelector((state: RootState) => state.cart.code);
   const cartService = new CartService();
   const dispatch = useDispatch<AppDispatch>();
+
+  const [paymentType, setPaymentType] = useState<PaymentMethodKey>(PaymentMethodKey.MONEYORDER);
+  const [stripeModalVisible, setStripeModalVisible] = useState(false);
+
+  const { createPaymentMethod } = useStripe(); // Stripe hook
+  const [cardDetails, setCardDetails] = useState<CardFieldInput.Details | null>(null);
+  const [stripePaymentMethodId, setStripePaymentMethodId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCartProducts = async () => {
@@ -82,6 +79,40 @@ const NewOrderScreen = () => {
     fetchCartProducts();
   }, [reduxCartCode]);
 
+  const handleSubmitCard = async () => {
+    if (!cardDetails?.complete) {
+      alert("Please enter complete card info.");
+      return;
+    }
+
+    try {
+      // Only type and billingDetails are needed
+      const { paymentMethod, error } = await createPaymentMethod({
+        paymentMethodType: 'Card',
+      });
+
+      if (error) {
+        console.error('Stripe error:', error);
+        alert(error.message);
+        return;
+      }
+
+      if (!paymentMethod?.id) {
+        alert("Failed to create payment method.");
+        return;
+      }
+
+      // Store the PaymentMethod ID for order submission
+      setStripePaymentMethodId(paymentMethod.id);
+      setStripeModalVisible(false);
+      alert("Card successfully saved. You can now submit the order.");
+    } catch (err) {
+      console.error('Stripe payment error:', err);
+      alert('Payment failed. Try again.');
+    }
+  };
+
+
   const handleSelectCustomer = () => {
     navigation.navigate('SelectCustomer', {
       onSelect: (customer: SelectedCustomer) => {
@@ -100,59 +131,6 @@ const NewOrderScreen = () => {
       },
     } as any);
   };
-
-  // const handleSelectProduct = async () => {
-
-  //   try {
-  //     if (reduxCartCode) {
-  //       // Fetch cart items if a cart code already exists
-  //       const cart = await cartService.getCartByCode(reduxCartCode);
-
-  //       if (cart?.products?.length) {
-  //         const mappedProducts: SelectedProduct[] = cart.products.map((item: ReadableShoppingCartItem) => ({
-  //           sku: item.sku,
-  //           quantity: item.quantity,
-  //           price: item.price ?? 0,
-  //           image: item.image?.path
-  //         }));
-
-  //         setSelectedProducts(mappedProducts);
-  //         setCartCode(reduxCartCode);
-
-  //         navigation.navigate('SelectProduct', {
-  //           preselectedProducts: mappedProducts, // pass to screen
-  //           cartCode: reduxCartCode,
-  //           onSelect: (products: SelectedProduct[], code: string) => {
-  //             setSelectedProducts(products);
-  //             setCartCode(code);
-  //           },
-  //         } as any);
-  //         return;
-  //       }
-  //     }
-
-  //     // If no cart code or empty cart
-  //     navigation.navigate('SelectProduct', {
-  //       preselectedProducts: [],
-  //       onSelect: (products: SelectedProduct[], code: string) => {
-  //         setSelectedProducts(products);
-  //         setCartCode(code);
-  //       },
-  //     } as any);
-
-  //   } catch (error) {
-  //     console.error('Error fetching cart items:', error);
-  //     // Fallback to empty selection
-  //     navigation.navigate('SelectProduct', {
-  //       preselectedProducts: [],
-  //       onSelect: (products: SelectedProduct[], code: string) => {
-  //         setSelectedProducts(products);
-  //         setCartCode(code);
-  //       },
-  //     } as any);
-  //   }
-
-  // };
 
   const handleCreateOrder = async () => {
     if (!selectedCustomer) {
@@ -174,22 +152,61 @@ const NewOrderScreen = () => {
       const service = new orderService();
       const cartServ = new CartService();
       const cart = await cartServ.getCartByCode(cartCode);
-      if (cart == null) {
-        alert('Cart is empty or not created.');
+
+      if (!cart) {
+        return alert('Cart is empty or not created.');
+      }
+
+      let payment: Payment = {
+        amount: `${cart?.total}`,
+        transactionType: "AUTHORIZECAPTURE",
+      };
+
+      if (paymentType === PaymentMethodKey.MONEYORDER) {
+        payment.paymentToken = "";
+        payment.paymentModule = "moneyorder";
+        payment.paymentType = "MONEYORDER";
+      } else if (paymentType === PaymentMethodKey.STRIPE) {
+        if (!stripePaymentMethodId) {
+          alert("Please enter card information first.");
+          return;
+        }
+        payment.paymentModule = "stripe";
+        payment.paymentType = "CREDITCARD";
+        // payment.paymentToken = stripePaymentMethodId; // Use saved PaymentMethod ID
+        payment.paymentToken = "tok_visa";
+      } else {
+        alert("Unsupported payment type.");
         return;
       }
-      // Build order payload
+
+      console.log(payment);
+
+
       const orderData: PersistableOrder = {
-        customerId: selectedCustomer.id,
+        comments: "",
         currency: "CAD",
-        payment: {
-          amount: `${cart?.total}`,
-          paymentModule: "moneyorder",
-          paymentToken: "",
-          paymentType: "MONEYORDER",
-          transactionType: "AUTHORIZECAPTURE"
-        }
+        customerAgreement: true,
+        shippingQuote: 0,
+        payment,
+        customerId: selectedCustomer.id,
       };
+
+      console.log(orderData);
+
+
+      // Build order payload
+      // const orderData: PersistableOrder = {
+      //   customerId: selectedCustomer.id,
+      //   currency: "CAD",
+      //   payment: {
+      //     amount: `${cart?.total}`,
+      //     paymentModule: "moneyorder",
+      //     paymentToken: "",
+      //     paymentType: "MONEYORDER",
+      //     transactionType: "AUTHORIZECAPTURE"
+      //   }
+      // };
 
       const orderConfirmation = await service.createOrder(orderData, cartCode);
 
@@ -320,6 +337,34 @@ const NewOrderScreen = () => {
               <Feather name="chevron-right" size={28} color="gray" />
             </TouchableOpacity>
           </View>
+
+          {/* Payment Type Selection */}
+          <View style={[styles.selectionCard, styles.paymentCard]}>
+            <Text style={styles.cardTitle}>Payment Method</Text>
+
+            <View style={styles.radioGroupVertical}>
+              {Object.entries(PAYMENT_METHODS).map(([key, label]) => (
+                <TouchableOpacity
+                  key={key}
+                  style={styles.radioRow}
+                  onPress={() => {
+                    setPaymentType(key as PaymentMethodKey);
+                    if (key === PaymentMethodKey.STRIPE) {
+                      setStripeModalVisible(true);
+                    }
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.radioOuter}>
+                    {paymentType === key && <View style={styles.radioInner} />}
+                  </View>
+                  <Text style={styles.radioLabel}>{label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+
         </ScrollView>
 
         {/* Create Order Button fixed at bottom */}
@@ -327,6 +372,37 @@ const NewOrderScreen = () => {
           <Text style={styles.createOrderButtonText}>Create Order</Text>
         </Pressable>
       </View>
+
+      {/* Stripe Card Information */}
+      {stripeModalVisible && (
+        <View style={styles.stripeModalOverlay}>
+          <View style={styles.stripeModalContent}>
+            <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 12 }}>
+              Enter Card Information
+            </Text>
+
+            <CardField
+              postalCodeEnabled={true}
+              placeholders={{ number: '4242 4242 4242 4242' }}
+              cardStyle={{ backgroundColor: '#FFFFFF', textColor: '#000000' }}
+              style={{ width: '100%', height: 50, marginVertical: 10 }}
+              onCardChange={(details) => setCardDetails(details)}
+            />
+
+            <Pressable style={styles.modalButton} onPress={handleSubmitCard}>
+              <Text style={styles.modalButtonText}>Submit</Text>
+            </Pressable>
+
+            <Pressable
+              style={[styles.modalButton, { marginTop: 8, backgroundColor: '#777' }]}
+              onPress={() => setStripeModalVisible(false)}
+            >
+              <Text style={styles.modalButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+
     </ChildLayout>
   );
 };

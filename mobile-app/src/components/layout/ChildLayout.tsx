@@ -8,12 +8,12 @@ interface ChildLayoutProps {
   filterTarget?: string;
 }
 
-const ChildLayout: React.FC<ChildLayoutProps> = ({ children, title , filterTarget}) => {
+const ChildLayout: React.FC<ChildLayoutProps> = ({ children, title, filterTarget }) => {
   return (
     <View style={styles.container}>
       {/* Curved background with header */}
       <View style={styles.header}>
-        <CustomHeader title={title} filterTarget={filterTarget}/>
+        <CustomHeader title={title} filterTarget={filterTarget} />
       </View>
 
       {/* Screen content */}
@@ -34,16 +34,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#0A3D91',
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
-    justifyContent: 'flex-end',
-    paddingHorizontal: 16,
-    paddingBottom: 8,
+    paddingHorizontal: 0,
+    paddingTop: 0, // for status bar padding (adjust as needed)
+    justifyContent: 'center',
   },
-  content: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingTop: 12,    
-  },
+  content: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 16, paddingTop: 12 },
 });
 
 export default ChildLayout;
