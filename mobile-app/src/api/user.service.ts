@@ -2,24 +2,25 @@ import { getLocalData } from '@/utils/helper';
 import { AxiosResponse } from 'axios';
 import { CrudService } from './crud.service';
 import { ReadableUser } from '@ui/shared-models';
+import Constant from '@/utils/constant';
+
+const tokenKey = Constant.AUTH_TOKEN;
 
 export class UserService {
     private crudService: CrudService;
-    private tokenKey = 'auth_token';
-    private userIdKey = 'auth_user_id';
-    
+
     constructor(crudService?: CrudService) {
         this.crudService = crudService ?? new CrudService();
     }
-    
 
-    async getProfile(): Promise<any | null> {
+    async getProfileDetail(): Promise<ReadableUser | null> {
         try {
-            const token = await getLocalData(this.tokenKey);
-            if (!token) throw new Error('No auth token found');
+            const token = await getLocalData(tokenKey);
 
             const response: AxiosResponse<ReadableUser> = await this.crudService.get(
-                '/private/user-service/profile'
+                '/private/user-service/user/profile',
+                undefined,
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             return response.data;
         } catch (error) {

@@ -20,7 +20,7 @@ const DashboardScreen = () => {
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Hello, {profile?.emailAddress}!</Text>
+              <Text style={styles.modalText}>Hello, {profile?.email}!</Text>
               <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
                 <Text style={styles.closeButtonText}>Close</Text>
               </TouchableOpacity>

@@ -21,7 +21,7 @@ const LoginScreen = () => {
       width="100vw"
       height="100vh"
       sx={{
-        background: "linear-gradient(135deg, #2193b0, #6dd5ed)", // gradient hiện đại
+        background: "linear-gradient(135deg, #2193b0, #6dd5ed)",
       }}
     >
       <Container maxWidth="sm">
@@ -41,7 +41,7 @@ const LoginScreen = () => {
             align="center"
             sx={{ fontWeight: 700, color: "primary.main" }}
           >
-            Welcome Back
+            BTM GLOBAL
           </Typography>
           <Typography
             variant="body2"

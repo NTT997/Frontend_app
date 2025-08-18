@@ -27,7 +27,10 @@ const useLoginViewModel = () => {
     };
 
     try {
+      console.log(loginData);
       const data = await authenticate(loginData);
+      console.log(data);
+
       if (data) {
         setError("");
         localStorage.setItem("id", data.id);

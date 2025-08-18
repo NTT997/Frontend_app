@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
 import { setLocalData } from '@/utils/helper';
-import { fetchUserProfile, setHasShownGreeting } from '@/redux/authSlice';
+import { setHasShownGreeting } from '@/redux/authSlice';
+import { fetchUserProfile } from '@/redux/userSlice';
 
 export function useDashboardViewModel() {
     const dispatch = useDispatch<AppDispatch>();
     const userId = useSelector((state: RootState) => state.auth.userId);
-    const profile = useSelector((state: RootState) => state.auth.profile);
+    const profile = useSelector((state: RootState) => state.userprofile.profile);
     const hasShownGreeting = useSelector((state: RootState) => state.auth.hasShownGreeting);
 
     const [modalVisible, setModalVisible] = useState(false);

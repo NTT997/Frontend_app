@@ -1,6 +1,13 @@
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
-import { Box, useTheme } from "@mui/material";
+import {
+  Box,
+  useTheme,
+  FormControl,
+  Select,
+  InputLabel,
+  MenuItem,
+} from "@mui/material";
 
 import Header from "../../../components/Header";
 import StatusDisplay from "../../../components/StatusDisplay";
@@ -13,46 +20,61 @@ const Order: React.FC = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const { orders, getListOrder } = useOrderViewModel();
+  const { orders, getListOrder, statusFilter, setStatusFilter } =
+    useOrderViewModel();
 
   useEffect(() => {
-    getListOrder();
-  }, []);
+    getListOrder(statusFilter);
+  }, [statusFilter]);
 
   return (
     <Box m="20px">
       <Header title="LIST ORDER" subtitle="Managing the Order" />
-      <Box
-        m="40px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
+
+      <FormControl sx={{ minWidth: 150, my: 2 }}>
+        <InputLabel id="status-filter-label">Status</InputLabel>
+        <Select
+          labelId="status-filter-label"
+          value={statusFilter}
+          label="Status"
+          onChange={(e) => setStatusFilter(e.target.value)}
+          size="small"
+          sx={{
             backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.blueAccent[700],
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-        }}
-      >
+            borderRadius: "8px",
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: colors.blueAccent[700],
+            },
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: colors.blueAccent[500],
+            },
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: colors.greenAccent[500],
+            },
+            color: colors.grey[100],
+          }}
+        >
+          <MenuItem value="ALL">ALL</MenuItem>
+          <MenuItem value="APPROVED">APPROVED</MenuItem>
+          <MenuItem value="PROCESSING">PROCESSING</MenuItem>
+          <MenuItem value="PROCESSED">PROCESSED</MenuItem>
+          <MenuItem value="REJECTED">REJECTED</MenuItem>
+        </Select>
+      </FormControl>
+
+      {orders && orders.length > 0 ? (
         <DataGrid rows={orders} columns={columns} />
-      </Box>
+      ) : (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100%"
+          color={colors.grey[100]}
+        >
+          No orders found
+        </Box>
+      )}
     </Box>
   );
 };
@@ -63,18 +85,18 @@ const columns: GridColDef[] = [
     headerName: "ORDER ID",
     flex: 1,
   },
-  {
-    field: "totalItem",
-    headerName: "PURCHASED",
-    renderCell: (params) => (
-      <span
-        style={{ color: "blue", cursor: "pointer" }}
-        onClick={() => console.log("View items of order:", params.row.id)}
-      >
-        {params.row.products?.length ?? 0}
-      </span>
-    ),
-  },
+  // {
+  //   field: "totalItem",
+  //   headerName: "PURCHASED",
+  //   renderCell: (params) => (
+  //     <span
+  //       style={{ color: "blue", cursor: "pointer" }}
+  //       onClick={() => console.log("View items of order:", params.row.id)}
+  //     >
+  //       {params.row.products?.length ?? 0}
+  //     </span>
+  //   ),
+  // },
   {
     field: "datePurchased",
     headerName: "DATE",
