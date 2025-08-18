@@ -253,6 +253,10 @@ const Sidebar = () => {
                   title: "Job scheduler",
                   to: "/configuration/scheduler",
                 },
+                {
+                  title: "Log Monitor",
+                  to: "/configuration/logmonitor",
+                }
               ]}
             />
           </Box>
