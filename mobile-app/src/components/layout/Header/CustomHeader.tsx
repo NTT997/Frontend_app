@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform } from 'react-native';
 
 type CustomHeaderProps = {
   title: string;
@@ -12,9 +13,10 @@ type CustomHeaderProps = {
 const CustomHeader: React.FC<CustomHeaderProps> = ({ title, filterTarget }) => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const extraPaddingTop = Platform.OS === 'ios' ? 10 : 0;
 
   return (
-    <View style={[styles.header, { paddingTop: insets.top }]}>
+    <View style={[styles.header, { paddingTop: insets.top + extraPaddingTop }]}>
       <View style={styles.headerRow}>
         {/* Back button */}
         <TouchableOpacity
@@ -30,14 +32,17 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, filterTarget }) => {
         <Text style={styles.title}>{title}</Text>
 
         {/* Filter button */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate(filterTarget as never)}
-          style={styles.iconButton}
-          accessibilityLabel="Open filter"
-          accessibilityRole="button"
-        >
-          <Feather name="filter" size={24} color="white" />
-        </TouchableOpacity>
+        <View style={styles.rightIcons}>
+
+          <TouchableOpacity
+            // onPress={() => navigation.navigate(filterTarget as never)}
+            style={styles.iconButton}
+            accessibilityLabel="Open filter"
+            accessibilityRole="button"
+          >
+            <Feather name="filter" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -49,7 +54,9 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
     paddingHorizontal: 16,
-    paddingBottom: 12, // space under row
+    paddingBottom: 16,
+    minHeight: 100,
+    justifyContent: 'flex-end',  // aligns row lower for notch
   },
   headerRow: {
     flexDirection: 'row',
@@ -58,6 +65,8 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     padding: 8,
+    width: 40,
+    alignItems: 'center',
   },
   title: {
     flex: 1,
@@ -66,6 +75,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  rightIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

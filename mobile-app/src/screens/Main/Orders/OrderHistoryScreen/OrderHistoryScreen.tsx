@@ -29,7 +29,7 @@ const HistoryScreen = () => {
       const service = new orderService();
 
       const res = await service.getOrderList({ page: 0, emailAdmin: emailAdmin });
-      setOrders(res.orders);
+      setOrders(res?.orders);
       setLoading(false);
     };
     fetchOrders();

@@ -3,6 +3,8 @@ import store, { AppDispatch, RootState } from '@/redux/store';
 import RootNavigator from '@/navigations/index';
 import { useEffect, useState } from 'react';
 import { loadCartCodeFromStorage, syncCartCodeStorage } from '@/redux/cartSlice';
+import { StripeProvider } from '@stripe/stripe-react-native';
+import Constant from '@/utils/constant';
 
 function AppInitializer({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -32,9 +34,14 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <AppInitializer >
-        <RootNavigator />
-      </AppInitializer >
+      <StripeProvider publishableKey={Constant.STRIPE_PUBLISHABLEKEY}
+        merchantIdentifier="merchant.identifier"
+        urlScheme="your-url-scheme"
+      >
+        <AppInitializer >
+          <RootNavigator />
+        </AppInitializer >
+      </StripeProvider>
     </Provider>
   );
 }
